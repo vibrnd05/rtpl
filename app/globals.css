@@ -1,0 +1,959 @@
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap");
+@import "tailwindcss";
+
+/* ══════════════════════════════════════════════════════════════════════════
+   RTPL — "Modernist" design system, DARK theme.
+   The ground is a near-black navy and everything is built up from it. Note
+   the one rule that flips when you invert a palette: colour ramps for TEXT
+   now run LIGHTER as the step number rises, not darker. `--color-accent` is
+   still the fill; -600 and -700 are the legible text steps on the navy.
+   Sharp corners (radius 0), 2px rules, Archivo throughout.
+   ══════════════════════════════════════════════════════════════════════════ */
+
+@theme {
+  /* The page ground, sampled from the reference build. */
+  --color-paper: #040d22;
+  /* One step up: inputs, wells, anything that should read as raised. */
+  --color-surface: #0a1730;
+  --color-ink: #e9eef7;
+  --color-accent: #ff6a12;
+  /* On this ground the ramp runs LIGHTER as it rises. Orange fills stay
+     --color-accent (6.5:1 against the navy); orange *text* uses -600 at
+     display sizes (7.4:1) and -700 at body sizes (9.0:1). */
+  --color-accent-600: #ff8a3d;
+  --color-accent-700: #ffa668;
+  --color-divider: #1e3252;
+  --color-stone: #8195b3;
+
+  /* — the match-day palette —
+     Four more hues over the navy: turf green, panel navy, ball leather and
+     floodlight amber. The base step is a FILL; the -700 steps are the ones
+     safe for text on the ground, and like the orange they run lighter, not
+     darker. `--color-night` sits deliberately close to the page ground — it
+     is a panel that lifts by a step, not a slab that fights it. */
+  --color-pitch: #17a55f;
+  --color-pitch-700: #45dc8e;
+  --color-night: #0b1a35;
+  --color-night-600: #14294c;
+  --color-leather: #d02430;
+  --color-leather-700: #ff7078;
+  --color-gold: #ffc02e;
+  --color-gold-700: #ffd97a;
+
+  --font-sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+
+  /* Boxes are softened slightly; `rounded-box` uses this token. */
+  --radius-box: 6px;
+}
+
+/* Aliases so the ported design-system component classes below read exactly
+   as they do in the source stylesheet. */
+:root {
+  --color-bg: var(--color-paper);
+  --color-text: var(--color-ink);
+  --font-heading: var(--font-sans);
+  --font-body: var(--font-sans);
+  --font-heading-weight: 800;
+
+  --space-1: 4px;
+  --space-2: 8px;
+  --space-3: 12px;
+  --space-4: 16px;
+  --space-6: 24px;
+  --space-8: 32px;
+}
+
+@layer base {
+  html {
+    /* Scrollbars, form controls and the flash before first paint all follow
+       this — without it the browser paints its light-mode chrome over a dark
+       page. */
+    color-scheme: dark;
+    scroll-behavior: smooth;
+    /* Safety net for full-bleed artwork. `clip` rather than `hidden`: it stops
+       sideways scrolling without creating a scroll container, so the sticky
+       header keeps working. */
+    overflow-x: clip;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    html {
+      scroll-behavior: auto;
+    }
+  }
+  body {
+    margin: 0;
+    background: var(--color-paper);
+    color: var(--color-ink);
+    font-size: 15px;
+    line-height: 1.55;
+    font-weight: 400;
+    text-wrap: pretty;
+    -webkit-font-smoothing: antialiased;
+  }
+  h1,
+  h2,
+  h3,
+  h4,
+  h5,
+  h6 {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    line-height: 1.12;
+    letter-spacing: -0.015em;
+    margin: 0;
+  }
+  :focus {
+    outline: none;
+  }
+  :focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+  }
+  ::selection {
+    background: color-mix(in srgb, var(--color-accent) 30%, transparent);
+  }
+  details summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+@layer components {
+  /* — layout shell — */
+  .shell {
+    width: 100%;
+    max-width: 1240px;
+    margin-inline: auto;
+    padding-inline: clamp(20px, 5vw, 56px);
+  }
+  .shell-narrow {
+    width: 100%;
+    max-width: 1100px;
+    margin-inline: auto;
+    padding-inline: clamp(20px, 5vw, 56px);
+  }
+
+  /* — 2px rule, the system's main separator — */
+  .rule {
+    height: 2px;
+    border: 0;
+    margin: 0;
+    background: var(--color-divider);
+  }
+  /* Seam variant: the same rule, stitched like a ball seam. Used sparingly. */
+  .rule-seam {
+    height: 2px;
+    border: 0;
+    margin: 0;
+    background-image: repeating-linear-gradient(
+      90deg,
+      var(--color-accent) 0 13px,
+      transparent 13px 26px
+    );
+    opacity: 0.5;
+  }
+
+  /* — the three-band 4px stripe at the top of the header and foot of the page — */
+  .tricolor {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr;
+    height: 4px;
+  }
+
+  /* — eyebrow / kicker — */
+  .eyebrow {
+    font-size: 13px;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--color-accent-700);
+    margin: 0;
+  }
+
+  /* — buttons — */
+  .btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px;
+    cursor: pointer;
+    text-decoration: none;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 14px;
+    line-height: 1.2;
+    color: var(--color-text);
+    background: transparent;
+    border: 1px solid transparent;
+    padding: var(--space-2) calc(var(--space-3) * 1.2);
+    border-radius: var(--radius-box);
+    transition:
+      background-color 0.18s ease,
+      border-color 0.18s ease,
+      color 0.18s ease,
+      transform 0.18s ease;
+  }
+  .btn:hover:not(:disabled) {
+    transform: translateY(-2px);
+  }
+  .btn:active:not(:disabled) {
+    transform: translateY(0);
+  }
+  .btn__arrow {
+    display: inline-block;
+    transition: transform 0.18s ease;
+  }
+  .btn:hover:not(:disabled) .btn__arrow {
+    transform: translateX(4px);
+  }
+  .btn:disabled {
+    opacity: 0.45;
+    cursor: not-allowed;
+  }
+  /* White on orange, by request. Worth knowing what it costs: #ffffff on
+     #ff6a12 is 2.87:1, where the navy label it replaced was 6.5:1. Because of
+     that the hover and active states now go DARKER rather than lighter --
+     stepping up the accent ramp would have taken the label to about 2.4:1, so
+     pointing at the button would have made it harder to read, not easier.
+     Deepening the resting fill to around #c9490a would carry white at 4.76:1
+     if the contrast matters more than the hue. */
+  .btn-primary {
+    background: var(--color-accent);
+    color: #ffffff;
+  }
+  .btn-primary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 88%, #000000);
+  }
+  .btn-primary:active:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 76%, #000000);
+  }
+  .btn-secondary {
+    border-color: var(--color-divider);
+  }
+  .btn-secondary:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+  .btn-secondary:active:not(:disabled) {
+    background: color-mix(in srgb, var(--color-text) 14%, transparent);
+  }
+  .btn-ghost {
+    color: var(--color-accent-700);
+    padding-inline: var(--space-1);
+  }
+  .btn-ghost:hover:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 10%, transparent);
+  }
+  .btn-ghost:active:not(:disabled) {
+    background: color-mix(in srgb, var(--color-accent) 18%, transparent);
+  }
+  /* — forms — */
+  .field > label {
+    display: block;
+    font-size: 12px;
+    margin-bottom: 5px;
+    color: color-mix(in srgb, var(--color-text) 70%, transparent);
+  }
+  .input {
+    width: 100%;
+    min-height: 36px;
+    padding: 6px 10px;
+    font: inherit;
+    font-size: 14px;
+    color: var(--color-text);
+    caret-color: var(--color-accent);
+    background: var(--color-surface);
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-box);
+  }
+  .input::placeholder {
+    color: color-mix(in srgb, var(--color-text) 38%, transparent);
+  }
+  .input:hover {
+    border-color: color-mix(in srgb, var(--color-text) 45%, transparent);
+  }
+  .input:focus-visible {
+    border-color: var(--color-accent);
+    outline-offset: 0;
+  }
+  .input[aria-invalid="true"] {
+    border-color: var(--color-accent);
+  }
+  textarea.input {
+    min-height: 90px;
+    resize: vertical;
+  }
+  select.input {
+    appearance: none;
+    background-image: none;
+  }
+
+  /* — segmented choice control, ported from the design system — */
+  .seg {
+    display: inline-flex;
+    flex-wrap: wrap;
+    overflow: hidden;
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-box);
+  }
+  .seg-opt {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 8px 14px;
+    font-size: 13px;
+    font-weight: 600;
+    cursor: pointer;
+    transition:
+      background-color 0.16s ease,
+      color 0.16s ease;
+  }
+  .seg-opt + .seg-opt {
+    border-left: 1px solid var(--color-divider);
+  }
+  .seg-opt input {
+    position: absolute;
+    width: 0;
+    height: 0;
+    opacity: 0;
+    pointer-events: none;
+  }
+  .seg-opt:has(input:checked) {
+    background: var(--color-accent);
+    color: #ffffff;
+  }
+  .seg-opt:not(:has(input:checked)):hover {
+    background: color-mix(in srgb, var(--color-text) 7%, transparent);
+  }
+  .seg-opt:has(input:focus-visible) {
+    outline: 2px solid var(--color-accent);
+    outline-offset: -2px;
+  }
+  .seg[aria-invalid="true"] {
+    border-color: var(--color-accent);
+  }
+
+  /* — table — */
+  .table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 14px;
+  }
+  .table th {
+    text-align: left;
+    font-size: 11px;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-text) 60%, transparent);
+    padding: var(--space-2);
+    border-bottom: 2px solid var(--color-divider);
+  }
+  .table td {
+    padding: var(--space-2);
+    border-bottom: 1px solid var(--color-divider);
+  }
+  .table tbody tr {
+    transition: background-color 0.18s ease;
+  }
+  .table tbody tr:hover {
+    background: color-mix(in srgb, var(--color-text) 4%, transparent);
+  }
+  .table tbody td:first-child {
+    position: relative;
+  }
+  /* An orange marker runs down the row you are reading. */
+  .table tbody tr:hover td:first-child::before {
+    content: "";
+    position: absolute;
+    inset-block: 0;
+    left: 0;
+    width: 3px;
+    background: var(--color-accent);
+  }
+  .floodlight {
+    animation: rtpl-flood 2.8s ease-in-out infinite;
+  }
+
+  /* — tabular figures for scores, counts and the countdown — */
+  .tnum {
+    font-feature-settings: "tnum" 1;
+  }
+
+  /* The closing call to action. It used to be a slab of flat orange, which
+     was a light-theme idea: on the navy it read as a different site bolted to
+     the bottom of this one. Now it is the same panel navy as the scoreboard
+     and the ticker, lifted one step off the page ground and ruled top and
+     bottom, so the page closes in its own language.
+
+     What keeps it from going inert is the light: warm spill entering from the
+     top left and orange rising from the bottom right, the same two sources
+     that light the hero, so the ball at the end of the page is under the same
+     lamps as the headline at the top of it. The diagonal stitching survives
+     from the old band, dropped to a whisper — it is texture now, not pattern.
+
+     Loudness comes from the orange chip and button sitting ON this, rather
+     than from the surface itself. */
+  .cta-band {
+    position: relative;
+    background-color: var(--color-night);
+    border-block: 2px solid var(--color-divider);
+    background-image:
+      repeating-linear-gradient(
+        64deg,
+        color-mix(in srgb, var(--color-ink) 5%, transparent) 0 2px,
+        transparent 2px 15px
+      ),
+      radial-gradient(
+        58% 130% at 10% -25%,
+        color-mix(in srgb, var(--color-gold) 18%, transparent),
+        transparent 62%
+      ),
+      radial-gradient(
+        62% 130% at 92% 125%,
+        color-mix(in srgb, var(--color-accent) 17%, transparent),
+        transparent 60%
+      );
+    color: var(--color-ink);
+  }
+
+  /* — pill label — */
+  .chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    padding: 4px 11px;
+    border-radius: 999px;
+    font-size: 12px;
+    font-weight: 600;
+    letter-spacing: 0.03em;
+    line-height: 1.35;
+  }
+
+
+  /* — the hero stage —
+     A night match: two towers off-frame, one warm and one cool, throwing rays
+     that cross over the headline, and a ground that goes dark underfoot where
+     the light does not reach.
+
+     Both layers are pseudo-elements on negative z-indexes; `isolation` keeps
+     them inside this section rather than letting them fall behind the page
+     ground. */
+  .hero-stage {
+    position: relative;
+    isolation: isolate;
+  }
+  .hero-stage::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    /* Behind the towers, which are behind the underfoot shading. */
+    z-index: -3;
+    pointer-events: none;
+    background:
+      /* The lamps' bloom, then the rays they throw.
+
+         Every origin below is stated in PIXELS, not percentages, and matches
+         the lamp head of the tower drawn on top of it — see --flood-* in the
+         .flood-tower rules. Percentages would be measured against the section,
+         so the light would slide off the lamps whenever the hero changed
+         height. Keep the two in step or the beams stop coming out of the
+         fittings: at -24px offset and 620px tall, the lamp cluster's centre
+         lands 67px in (-24 + 0.482 * 188) and 86px down (0.138 * 620).
+
+         Ray angles run clockwise from straight up, so 90deg is due right and
+         180deg straight down: the left tower throws 112-156deg (down and
+         right), the right tower 208-232deg (down and left), crossing over the
+         headline. Each ray is transparent -> peak -> transparent, which gives
+         the wedge a soft edge instead of a hard one. */
+      radial-gradient(
+        300px 250px at var(--flood-x) var(--flood-y),
+        color-mix(in srgb, var(--color-gold) 48%, transparent),
+        transparent 80%
+      ),
+      radial-gradient(
+        280px 235px at calc(100% - var(--flood-x)) var(--flood-y),
+        color-mix(in srgb, #dce9ff 42%, transparent),
+        transparent 80%
+      ),
+      conic-gradient(
+        at var(--flood-x) var(--flood-y),
+        transparent 0deg 103deg,
+        color-mix(in srgb, var(--color-gold) 29%, transparent) 112deg,
+        transparent 121deg 128deg,
+        color-mix(in srgb, var(--color-gold) 20%, transparent) 135deg,
+        transparent 142deg 150deg,
+        color-mix(in srgb, var(--color-gold) 13%, transparent) 156deg,
+        transparent 163deg 360deg
+      ),
+      conic-gradient(
+        at calc(100% - var(--flood-x)) var(--flood-y),
+        transparent 0deg 199deg,
+        color-mix(in srgb, #dce9ff 25%, transparent) 208deg,
+        transparent 217deg 225deg,
+        color-mix(in srgb, #dce9ff 17%, transparent) 232deg,
+        transparent 240deg 360deg
+      );
+    /* Light dies out before the ticker rather than stopping at an edge. */
+    mask-image: linear-gradient(
+      to bottom,
+      #000 0%,
+      #000 46%,
+      transparent 96%
+    );
+    animation: rtpl-bloom 7s ease-in-out infinite alternate;
+  }
+
+  /* — the pylons —
+     Sized by height so the drawing keeps its proportions, and offset far
+     enough left that the mast clears the shell's text column on a wide
+     screen. --flood-x / --flood-y are where this tower's lamp cluster lands,
+     which is what the gradients above aim at: it sits at 48.2% across and
+     13.8% down its own 200x660 viewBox, so at 620px tall the centre is 67px
+     in from the element's left edge (-24px + 0.482 * 188px) and 86px down.
+     Change the height, the offset or the lamp grid and both move. */
+  .hero-stage {
+    --flood-x: 67px;
+    --flood-y: 86px;
+  }
+  .flood-tower {
+    position: absolute;
+    top: 0;
+    height: 620px;
+    width: auto;
+    z-index: -2;
+    /* Thrown out of focus and dimmed so the pylons sit behind the page rather
+       than on it — the blur is doing most of that work, since a sharp edge is
+       what makes a shape read as foreground however faint it is. */
+    opacity: 0.62;
+    filter: blur(3.5px);
+    pointer-events: none;
+    /* The mast dissolves into the ground rather than stopping at a cut end. */
+    mask-image: linear-gradient(to bottom, #000 58%, transparent 97%);
+    display: none;
+  }
+  /* Below this the mast would stand in the middle of the headline: the shell
+     runs edge to edge and there is no margin left to put a tower in. */
+  @media (min-width: 1024px) {
+    .flood-tower {
+      display: block;
+    }
+  }
+  .flood-tower--left {
+    left: -24px;
+  }
+  .flood-tower--right {
+    right: -24px;
+    transform: scaleX(-1);
+  }
+
+  /* Dark underfoot. The ground is already near-black, so this reads as a
+     deepening rather than a shadow — enough to seat the scoreboard. */
+  .hero-stage::after {
+    content: "";
+    position: absolute;
+    inset: auto 0 0;
+    height: 46%;
+    z-index: -1;
+    pointer-events: none;
+    background: linear-gradient(
+      to bottom,
+      transparent,
+      rgba(0, 0, 0, 0.55)
+    );
+  }
+
+  /* — scoreboard —
+     A dark panel of amber figures under the hero: the one place on a light
+     page that reads like a ground's scoreboard rather than a stat card. The
+     2px gaps between cells are the panel background showing through. */
+  .scoreboard {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 2px;
+    background: var(--color-night-600);
+    border: 2px solid var(--color-divider);
+    border-radius: var(--radius-box);
+    overflow: hidden;
+  }
+  @media (min-width: 700px) {
+    .scoreboard {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+    }
+  }
+  .scoreboard-cell {
+    position: relative;
+    overflow: hidden;
+    background: var(--color-night);
+    padding: 16px clamp(14px, 2vw, 22px) 15px;
+    transition: background-color 0.2s ease;
+  }
+  .scoreboard-cell:hover {
+    background: var(--color-night-600);
+  }
+  /* An amber bar sweeps in along the foot of the cell you point at. */
+  .scoreboard-cell::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--color-accent);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .scoreboard-cell:hover::after {
+    transform: scaleX(1);
+  }
+  .scoreboard-value {
+    display: block;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: clamp(30px, 4.4vw, 42px);
+    line-height: 1;
+    letter-spacing: -0.03em;
+    color: var(--color-accent);
+    text-shadow: 0 0 22px color-mix(in srgb, var(--color-accent) 45%, transparent);
+  }
+  .scoreboard-unit {
+    font-size: 0.42em;
+    font-weight: 800;
+    letter-spacing: 0.06em;
+    margin-left: 3px;
+    color: color-mix(in srgb, var(--color-accent) 72%, transparent);
+  }
+  .scoreboard-label {
+    display: block;
+    margin-top: 9px;
+    font-size: 11px;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-ink) 64%, transparent);
+  }
+
+  /* — ticker —
+     Full-bleed scrolling band. The track holds the phrase list twice and
+     travels exactly half its width, so the loop has no seam. */
+  .ticker {
+    overflow: hidden;
+    background: var(--color-night);
+    color: var(--color-ink);
+    border-block: 2px solid var(--color-divider);
+  }
+  .ticker-track {
+    display: flex;
+    width: max-content;
+    animation: rtpl-ticker 32s linear infinite;
+  }
+  .ticker:hover .ticker-track {
+    animation-play-state: paused;
+  }
+  .ticker-item {
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    padding: 13px 22px;
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 13px;
+    letter-spacing: 0.18em;
+    text-transform: uppercase;
+    white-space: nowrap;
+  }
+  /* Every other phrase in amber, so the band reads as a run of separate calls
+     rather than one long sentence. */
+  .ticker-item:nth-child(even) {
+    color: var(--color-gold);
+  }
+
+  /* — live dot, with the ping that makes it feel on-air — */
+  .live-dot {
+    position: relative;
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--color-accent);
+  }
+  .live-dot::after {
+    content: "";
+    position: absolute;
+    inset: 0;
+    background: inherit;
+    animation: rtpl-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
+  }
+}
+
+@layer utilities {
+  .rise {
+    animation: rtpl-rise 0.7s ease both;
+  }
+
+  /* ── scroll reveal ───────────────────────────────────────────────────
+     Content is visible by default. The hidden state applies ONLY when JS is
+     running (html.js, set by an inline script before first paint) and only
+     when reduced motion is not requested — so a visitor without JS, or one
+     who asked for less motion, never meets a blank page. */
+  @media (prefers-reduced-motion: no-preference) {
+    [data-reveal] {
+      transition:
+        opacity 0.7s cubic-bezier(0.2, 0.7, 0.2, 1),
+        transform 0.7s cubic-bezier(0.2, 0.7, 0.2, 1);
+    }
+    .js [data-reveal] {
+      opacity: 0;
+      transform: translateY(22px);
+    }
+    .js [data-reveal].revealed {
+      opacity: 1;
+      transform: none;
+    }
+  }
+  /* The ball drifts; the seam turns about the view axis while the highlight
+     and shading stay put, which is how a spinning ball actually reads. */
+  .ball-float {
+    animation: rtpl-float 7s ease-in-out infinite;
+  }
+  .ball-seam {
+    transform-box: fill-box;
+    transform-origin: center;
+    animation: rtpl-spin 22s linear infinite;
+  }
+  /* The match-ball photograph. The ball sits a little off centre in the source
+     file, so the frame is oversized and pulled back by the offsets below —
+     that puts the frame's centre on the ball's centre, which is the only way
+     the spin reads as a turning ball rather than an orbiting one. The numbers
+     come straight from the alpha bounding box of /duce-ball2.png:
+     2400×1600 with the ball spanning 1088×1103 about (1229.5, 819). */
+  .ball-photo {
+    position: relative;
+    animation: rtpl-spin 18s linear infinite;
+  }
+  .ball-photo > img {
+    position: absolute;
+    left: -62.3%;
+    top: -24.8%;
+    width: 219.2%;
+    max-width: none;
+    height: auto;
+  }
+
+  /* The ball is thrown rather than hung: it falls fast and rises slow, with a
+     ground shadow that tightens and darkens as it lands. Bounce and spin sit
+     on separate elements so the two transforms do not overwrite each other. */
+  .ball-stage {
+    position: relative;
+    display: grid;
+    justify-items: center;
+  }
+  .ball-bounce {
+    animation: rtpl-bounce 2.1s infinite;
+  }
+  .ball-shadow {
+    position: absolute;
+    bottom: -18px;
+    left: 50%;
+    width: 62%;
+    height: 16px;
+    border-radius: 999px;
+    background: radial-gradient(
+      closest-side,
+      rgba(0, 3, 12, 0.62),
+      rgba(0, 3, 12, 0)
+    );
+    transform: translateX(-50%);
+    animation: rtpl-bounce-shadow 2.1s infinite;
+  }
+
+  /* Wipes an orange highlighter under a word once, on load. Drawn as a
+     background rather than a pseudo-element, so there is no stacking to get
+     wrong against the hero's floodlights. */
+  .swipe {
+    background-image: linear-gradient(
+      var(--color-accent),
+      var(--color-accent)
+    );
+    background-repeat: no-repeat;
+    background-position: 0 92%;
+    background-size: 0% 0.26em;
+    padding-inline: 0.06em;
+    margin-inline: -0.06em;
+    animation: rtpl-swipe 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) 0.5s forwards;
+  }
+
+  /* A shine that crosses the button once per hover. */
+  .btn-shine {
+    position: relative;
+    overflow: hidden;
+  }
+  .btn-shine::after {
+    content: "";
+    position: absolute;
+    top: 0;
+    bottom: 0;
+    left: -50%;
+    width: 40%;
+    transform: skewX(-18deg);
+    background: linear-gradient(
+      90deg,
+      transparent,
+      rgba(255, 255, 255, 0.5),
+      transparent
+    );
+    pointer-events: none;
+  }
+  .btn-shine:hover:not(:disabled)::after {
+    animation: rtpl-shine 0.75s ease-out;
+  }
+
+  /* Floodlight glow behind the hero mark. */
+  .mark-glow {
+    position: relative;
+    isolation: isolate;
+  }
+  .mark-glow::before {
+    content: "";
+    position: absolute;
+    inset: 8% 4%;
+    z-index: -1;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--color-gold) 22%, transparent),
+      transparent
+    );
+    animation: rtpl-bloom 5.5s ease-in-out infinite alternate;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .rise,
+    .ball-float,
+    .ball-photo,
+    .ball-bounce,
+    .ball-shadow,
+    .ball-seam,
+    .floodlight,
+    .live-dot::after,
+    .mark-glow::before,
+    .hero-stage::before,
+    .ticker-track,
+    .swipe {
+      animation: none;
+    }
+    /* The highlighter is still drawn — it just does not travel. */
+    .swipe {
+      background-size: 100% 0.26em;
+    }
+    .btn:hover:not(:disabled) {
+      transform: none;
+    }
+  }
+}
+
+@keyframes rtpl-rise {
+  from {
+    opacity: 0;
+    transform: translateY(18px);
+  }
+  to {
+    opacity: 1;
+    transform: none;
+  }
+}
+
+/* Symmetric about zero, so the drift averages out to the centred position. */
+@keyframes rtpl-float {
+  0%,
+  100% {
+    transform: translateY(8px);
+  }
+  50% {
+    transform: translateY(-8px);
+  }
+}
+
+@keyframes rtpl-spin {
+  to {
+    transform: rotate(360deg);
+  }
+}
+
+/* Floodlight towers breathing on the ground plan */
+@keyframes rtpl-flood {
+  0%,
+  100% {
+    opacity: 0.3;
+  }
+  50% {
+    opacity: 1;
+  }
+}
+
+/* A cricket ball falls faster than it rises — the per-keyframe timing
+   functions carry that, and the shadow below runs on the same clock. */
+@keyframes rtpl-bounce {
+  0% {
+    transform: translateY(-24px);
+    animation-timing-function: cubic-bezier(0.6, 0, 1, 0.5);
+  }
+  50% {
+    transform: translateY(12px);
+    animation-timing-function: cubic-bezier(0, 0.45, 0.35, 1);
+  }
+  100% {
+    transform: translateY(-24px);
+  }
+}
+
+@keyframes rtpl-bounce-shadow {
+  0% {
+    transform: translateX(-50%) scale(0.7);
+    opacity: 0.25;
+    animation-timing-function: cubic-bezier(0.6, 0, 1, 0.5);
+  }
+  50% {
+    transform: translateX(-50%) scale(1.06);
+    opacity: 0.5;
+    animation-timing-function: cubic-bezier(0, 0.45, 0.35, 1);
+  }
+  100% {
+    transform: translateX(-50%) scale(0.7);
+    opacity: 0.25;
+  }
+}
+
+/* Floodlights never sit perfectly still. */
+@keyframes rtpl-bloom {
+  from {
+    opacity: 0.55;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes rtpl-ping {
+  from {
+    transform: scale(1);
+    opacity: 0.75;
+  }
+  to {
+    transform: scale(2.8);
+    opacity: 0;
+  }
+}
+
+@keyframes rtpl-swipe {
+  to {
+    background-size: 100% 0.26em;
+  }
+}
+
+/* Half the track is one full copy of the phrase list. */
+@keyframes rtpl-ticker {
+  to {
+    transform: translateX(-50%);
+  }
+}
+
+@keyframes rtpl-shine {
+  to {
+    left: 130%;
+  }
+}
