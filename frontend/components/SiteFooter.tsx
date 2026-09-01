@@ -14,13 +14,13 @@ export function SiteFooter() {
     <footer className="bg-paper text-ink" id="contact">
       <div className="shell pb-8 pt-[clamp(40px,5vw,64px)]">
         <div
-          className="grid gap-8 text-sm leading-[1.65] [grid-template-columns:repeat(auto-fit,minmax(200px,1fr))]"
+          className="grid gap-8 text-sm leading-[1.65] grid-cols-[repeat(auto-fit,minmax(200px,1fr))]"
           data-reveal-group
         >
           <div data-reveal>
-            <p className="mb-2.5 flex items-baseline gap-[3px] text-[17px] font-extrabold">
+            <p className="mb-2.5 flex items-baseline gap-0.75 text-[17px] font-extrabold">
               RTPL Season {LEAGUE.season}
-              <BallMark className="mb-[3px] h-[9px] w-[9px] self-end" />
+              <BallMark className="mb-0.75 h-2.25 w-2.25 self-end" />
             </p>
             <p className="m-0 text-ink/70">
               Round Table India
@@ -30,7 +30,7 @@ export function SiteFooter() {
             <p className="m-0 mt-4 text-ink/70">
               {LEAGUE.venue.name}
               <br />
-              Gurugram
+              Guwahati, Assam
             </p>
           </div>
 
@@ -65,19 +65,11 @@ export function SiteFooter() {
               <span className="text-ink/70">Closes {LEAGUE.entriesClose}</span>
             </p>
           </div>
-
-          <div data-reveal>
-            <p className="mb-2.5 text-[12.5px] uppercase tracking-[0.08em] text-ink/70">
-              Beneficiary
-            </p>
-            <p className="m-0 text-ink/70">{LEAGUE.beneficiary}</p>
-          </div>
         </div>
 
         {/* No section links here any more — the page they pointed at is gone. */}
         <p className="mt-10 mb-0 border-t-2 border-divider pt-6 text-[12.5px] text-ink/60">
-          Run by members, for the schools programme. ©{" "}
-          {new Date(LEAGUE.firstBallISO).getFullYear()} Round Table India.
+          © {new Date(LEAGUE.firstBallISO).getFullYear()} Round Table India.
         </p>
       </div>
 

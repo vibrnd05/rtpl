@@ -13,13 +13,13 @@ function Wordmark() {
   return (
     <Link href="/" className="mr-auto flex items-center">
       <Image
-        src="/rtpl-text.png"
+        src="/rtpl-text-white.png"
         alt="RTPL"
         width={1237}
         height={214}
         priority
         sizes="162px"
-        className="h-[24px] w-auto md:h-[26px]"
+        className="h-8 w-auto md:h-10"
       />
     </Link>
   );
@@ -43,7 +43,7 @@ export function SiteHeader({
   return (
     <header className="sticky top-0 z-20 border-b-2 border-divider bg-paper">
       <ScrollProgress />
-      <div className={`${shell} flex h-[68px] items-center gap-6 md:gap-7`}>
+      <div className={`${shell} flex h-17 items-center gap-6 md:gap-7`}>
         <Wordmark />
 
         {variant === "league" ? (

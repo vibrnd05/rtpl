@@ -1,18 +1,19 @@
 import type { Metadata, Viewport } from "next";
 import { LEAGUE } from "@/lib/league";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { BackgroundMusic } from "@/components/BackgroundMusic";
 import "./globals.css";
 
-const description = `Round Table Premier League Season ${LEAGUE.season} — three days of floodlit T10 cricket, ${LEAGUE.dates}, at ${LEAGUE.venue.name}. ${LEAGUE.slotsOpen} team slots open.`;
+const description = `Round Table Premier League Season ${LEAGUE.season} — two days of floodlit T10 cricket, ${LEAGUE.dates}, at ${LEAGUE.venue.name}. ${LEAGUE.slotsOpen} team slots open.`;
 
 export const metadata: Metadata = {
   title: {
-    default: `RTPL — Round Table Premier League Season ${LEAGUE.season}`,
+    default: `RTPL - Round Table Premier League Season ${LEAGUE.season}`,
     template: "%s",
   },
   description,
   openGraph: {
-    title: `RTPL — Round Table Premier League Season ${LEAGUE.season}`,
+    title: `RTPL - Round Table Premier League Season ${LEAGUE.season}`,
     description,
     type: "website",
   },
@@ -46,6 +47,9 @@ export default function RootLayout({
         />
         {children}
         <ScrollReveal />
+        {/* In the layout, not a page, so the track survives the hop
+            between the landing page and the registration form. */}
+        <BackgroundMusic />
       </body>
     </html>
   );

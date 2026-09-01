@@ -5,25 +5,23 @@
  */
 export const LEAGUE = {
   season: 8,
-  dates: "13–15 November 2026",
+  dates: "20–21 February 2027",
   /** First ball, IST. Drives the countdown. */
-  firstBallISO: "2026-11-13T18:00:00+05:30",
-  firstBallLabel: "13 Nov 2026, 18:00",
-  entriesClose: "31 October 2026",
+  firstBallISO: "2027-02-20T18:00:00+05:30",
+  firstBallLabel: "20 Feb 2027, 18:00",
+  entriesClose: "12 September 2026",
   slotsOpen: 2,
-  teamCount: 12,
+  teamCount: 5,
   /* Tentative — quoted on the owner registration form. */
   entryFee: "Rs. 1.50 Lakhs",
   auctionDate: "13th December",
   email: "rtpl@roundtableindia.org",
   phone: "+91 98110 44112",
-  beneficiary: "Freedom Through Education — Sonipat primary block",
   venue: {
-    name: "Sector 44 Sports Complex",
-    address:
-      "Sector 44 Sports Complex, Huda City Centre Road, Gurugram, Haryana 122003",
-    metro: "Huda City Centre (Yellow Line), 900 m — shuttles every 20 min",
+    name: "Maligaon Railway Stadium",
+    address: "Maligaon Railway Stadium, Maligaon, Guwahati, Assam",
     gates: "Open 90 minutes before first ball each day",
-    mapsUrl: "https://maps.google.com/?q=Sector+44+Sports+Complex+Gurugram",
+    mapsUrl:
+      "https://maps.google.com/?q=Maligaon+Railway+Stadium+Guwahati",
   },
 } as const;

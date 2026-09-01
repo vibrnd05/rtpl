@@ -438,6 +438,14 @@
   .hero-stage {
     position: relative;
     isolation: isolate;
+    /* The gap under the scoreboard belongs to this section, and it has to be
+       padding rather than a margin on the scoreboard itself. Neither .shell
+       nor this element has block padding, a border or a block formatting
+       context, so a bottom margin on the last child collapsed straight out of
+       the section: the hero ended at the scoreboard's edge and the gap below
+       it was bare page ground, which ::after — inset to this box — could not
+       reach. That was the flat navy strip above the ticker. */
+    padding-bottom: clamp(56px, 7vw, 104px);
   }
   .hero-stage::before {
     content: "";
@@ -544,19 +552,35 @@
   }
 
   /* Dark underfoot. The ground is already near-black, so this reads as a
-     deepening rather than a shadow — enough to seat the scoreboard. */
+     deepening rather than a shadow — enough to seat the scoreboard.
+
+     The stops are the point. A straight transparent -> 0.55 ramp reaches full
+     strength at the section's edge and then has nowhere left to go, so the
+     margin below the scoreboard came out as a flat slab — the one part of the
+     page with neither the lamps above it nor the band's stripes below. Peaking
+     at 74% and easing back keeps the ground graduating right down to the
+     ticker, and the spill gives it something to graduate towards. */
   .hero-stage::after {
     content: "";
     position: absolute;
     inset: auto 0 0;
-    height: 46%;
+    height: 58%;
     z-index: -1;
     pointer-events: none;
-    background: linear-gradient(
-      to bottom,
-      transparent,
-      rgba(0, 0, 0, 0.55)
-    );
+    background:
+      /* Light thrown along the outfield: wide, low, and warm, answering the
+         lamps' bloom at the top of the section. */
+      radial-gradient(
+        120% 70% at 50% 108%,
+        color-mix(in srgb, var(--color-gold) 10%, transparent),
+        transparent 68%
+      ),
+      linear-gradient(
+        to bottom,
+        transparent,
+        rgba(0, 0, 0, 0.5) 74%,
+        rgba(0, 0, 0, 0.28)
+      );
   }
 
   /* — scoreboard —
@@ -565,17 +589,18 @@
      2px gaps between cells are the panel background showing through. */
   .scoreboard {
     display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    /* Centred and capped rather than stretched across the shell: three
+       cells over the full width made each box far wider than the two or
+       three characters it holds. 850px puts a cell back at roughly the
+       width it had when there were four of them. */
+    max-width: 850px;
+    margin-inline: auto;
     gap: 2px;
     background: var(--color-night-600);
     border: 2px solid var(--color-divider);
     border-radius: var(--radius-box);
     overflow: hidden;
-  }
-  @media (min-width: 700px) {
-    .scoreboard {
-      grid-template-columns: repeat(4, minmax(0, 1fr));
-    }
   }
   .scoreboard-cell {
     position: relative;
@@ -627,6 +652,52 @@
     letter-spacing: 0.14em;
     text-transform: uppercase;
     color: color-mix(in srgb, var(--color-ink) 64%, transparent);
+  }
+
+  /* — background music toggle —
+     Parked over the bottom corner for the length of the page. Small, but
+     never below the 44px that a thumb needs. */
+  .music-toggle {
+    position: fixed;
+    right: clamp(14px, 3vw, 26px);
+    bottom: clamp(14px, 3vw, 26px);
+    z-index: 60;
+    display: grid;
+    place-items: center;
+    width: 44px;
+    height: 44px;
+    border: 2px solid var(--color-divider);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-night) 88%, transparent);
+    backdrop-filter: blur(6px);
+    color: var(--color-accent);
+    cursor: pointer;
+    transition:
+      background-color 0.2s ease,
+      border-color 0.2s ease,
+      transform 0.2s ease;
+  }
+  .music-toggle:hover {
+    background: var(--color-night-600);
+    border-color: var(--color-accent);
+  }
+  .music-toggle:active {
+    transform: translateY(1px);
+  }
+  .music-toggle svg {
+    width: 20px;
+    height: 20px;
+    fill: currentColor;
+  }
+  /* The waves — or the cross that replaces them — are strokes, not fills. */
+  .music-toggle__wave {
+    stroke: currentColor;
+    stroke-width: 1.8;
+    stroke-linecap: round;
+  }
+  /* Off reads as off: the mark goes quiet along with the sound. */
+  .music-toggle[aria-pressed="false"] {
+    color: color-mix(in srgb, var(--color-ink) 62%, transparent);
   }
 
   /* — ticker —

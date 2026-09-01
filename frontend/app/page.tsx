@@ -23,8 +23,7 @@ const TICKER = [
   "T10 under lights",
   `${LEAGUE.teamCount} chapter sides`,
   `${LEAGUE.slotsOpen} slots left`,
-  "Gurugram",
-  "Every run builds a school",
+  "Guwahati",
 ] as const;
 
 function ScoreCell({
@@ -77,10 +76,10 @@ export default function Home() {
                 className="mt-7.5 max-w-[52ch] text-[16.5px] leading-[1.65] md:text-[17.5px]"
                 data-reveal
               >
-                Three days of floodlit T10 cricket. Twelve chapter sides, one
+                Two days of floodlit T10 cricket. Five chapter sides, one
                 trophy, and every run raising money for the Round Table India
-                schools programme. Squads of fourteen, entries close when the
-                twelfth team is in.
+                schools programme. Squads of fifteen, entries close when the
+                fifth team is in.
               </p>
 
               <div className="mt-8.5 flex flex-wrap gap-3" data-reveal>
@@ -108,7 +107,7 @@ export default function Home() {
 
           {/* Scoreboard — the season's numbers, read off a ground's board */}
           <div
-            className="scoreboard mt-[clamp(40px,6vw,72px)] mb-[clamp(56px,7vw,104px)]"
+            className="scoreboard mt-[clamp(40px,6vw,72px)]"
             data-reveal-group
           >
             <ScoreCell
@@ -119,10 +118,6 @@ export default function Home() {
             <ScoreCell
               value={<CountUp value={String(LEAGUE.teamCount)} />}
               label="Chapter sides"
-            />
-            <ScoreCell
-              value={<CountUp value={String(LEAGUE.slotsOpen)} />}
-              label="Slots left"
             />
           </div>
         </div>
@@ -144,15 +139,15 @@ export default function Home() {
                 data-reveal
               >
                 <span className="block text-accent-600">Own a team.</span>
-                <span className="block">Back a school.</span>
+                <span className="block">Take the field.</span>
               </h2>
 
               <p
                 className="mt-5 max-w-[50ch] text-[15.5px] leading-[1.6] text-ink/75"
                 data-reveal
               >
-                Fourteen players, three days of floodlit cricket, and a primary
-                block in Sonipat at the end of it.
+                Fifteen players, five chapter sides, and two days of floodlit
+                cricket at {LEAGUE.venue.name}.
               </p>
 
               <div className="mt-8 flex flex-wrap items-center gap-3" data-reveal>
