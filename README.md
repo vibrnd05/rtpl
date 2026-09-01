@@ -1,7 +1,18 @@
 # RTPL — Round Table Premier League
 
-Landing page + team registration for the Round Table Premier League, Season 5.
-Next.js 15 (App Router, TypeScript, Tailwind v4) on the front end, Supabase for storage.
+Landing page + team registration for the Round Table Premier League.
+Next.js 15 (App Router, TypeScript, Tailwind v4) in `frontend/`, an Express +
+MongoDB backend in `backend/`.
+
+```
+rtpl/
+├── frontend/   Next.js 15 site — landing page and the registration form
+└── backend/    Express + Mongoose API — MVC, plain JavaScript
+```
+
+The site never talks to MongoDB. The registration server action calls the API
+server-to-server over `BACKEND_URL`, so no database credential and no API base
+URL ever reaches the browser.
 
 Built to match the **"Modernist"** Claude Design project
 (`claude.ai/design/p/f57a6d46-53b4-4831-b2a9-edfe5ade1a50`), artboards
@@ -12,11 +23,11 @@ Built to match the **"Modernist"** Claude Design project
 | Route       | What it is                                                                                      |
 | ----------- | ----------------------------------------------------------------------------------------------- |
 | `/`         | Hero → live countdown → the league → schedule table → teams grid → venue → FAQ → CTA band → footer |
-| `/register` | Four-part captain-led entry form with a dynamic 11–14 player squad sheet                          |
+| `/register` | Three-part owner entry form — the owners, the team, the commitments                            |
 
 ## Design system
 
-Tokens live in `app/globals.css` and are the same values as the design project:
+Tokens live in `frontend/app/globals.css` and are the same values as the design project:
 
 | Token                | Value     | Role                                       |
 | -------------------- | --------- | ------------------------------------------ |
@@ -45,69 +56,114 @@ The design-system component classes (`.btn`, `.btn-primary/secondary/ghost`, `.i
 from the project's `styles.css`. Layout and spacing use Tailwind utilities with the
 design's exact px/clamp values.
 
-Season facts — dates, fee, squad limits, venue, contacts — are centralised in
-`lib/league.ts`. Change them there and every page follows.
+Season facts — dates, fee, venue, contacts — are centralised in
+`frontend/lib/league.ts`. Change them there and every page follows.
 
 ## Setup
 
-1. **Create the Supabase table.** In the Supabase dashboard open **SQL → New query**,
-   paste `supabase/schema.sql` and run it.
+You need a MongoDB to point at — a local `mongod`, or a MongoDB Atlas cluster.
+Run the two services in separate terminals.
 
-   > If you ran an earlier version of this file, both the table shape and its
-   > name have changed (it used to be `team_registrations`). Drop the old one
-   > first:
-   > `drop table if exists public.team_registrations cascade;`
+### 1. Backend
 
-2. **Add your keys.**
+```bash
+cd backend
+npm install
+npm run dev               # http://localhost:4000
+```
 
-   ```bash
-   cp .env.local.example .env.local
-   ```
+`backend/.env` holds `MONGODB_URI`, `MONGODB_DB`, `PORT` and `LEAGUE_SEASON`.
+Set `MONGODB_DB` rather than putting the database in the connection string — a
+URI that ends at the host would otherwise land everything in MongoDB's default
+`test` database. The collection and its indexes are created on first connect —
+no migration step, no schema file to run by hand.
 
-   Fill in `NEXT_PUBLIC_SUPABASE_URL` and `NEXT_PUBLIC_SUPABASE_ANON_KEY` from
-   **Project Settings → API**.
+### 2. Frontend
 
-3. **Run it.**
+```bash
+cd frontend
+cp .env.example .env.local   # BACKEND_URL=http://localhost:4000
+npm install
+npm run dev                  # http://localhost:3000
+```
 
-   ```bash
-   npm install
-   npm run dev      # http://localhost:3000
-   ```
+## The API
+
+No authentication — owners submit the form, the entry is saved.
+
+| Method | Route                       | What it does                                      |
+| ------ | --------------------------- | ------------------------------------------------- |
+| `GET`  | `/api/health`               | Liveness check                                     |
+| `POST` | `/api/registrations`        | Saves an entry, returns it with its reference      |
+| `GET`  | `/api/registrations`        | Every entry, newest first                          |
+| `GET`  | `/api/registrations/:id`    | One entry                                          |
+
+`POST /api/registrations` takes the six questions:
+
+```jsonc
+{
+  "owners": "Arjun Mehta (RT 187), Rohit Nair (RT 12)",
+  "ownersMobile": "+91 98110 00000",
+  "teamName": "Gurgaon Gladiators",
+  "tshirtSize": "L",              // optional: S/M/L/XL/XXL/Other
+  "tshirtSizeOther": "",          // required only when tshirtSize is "Other"
+  "financialCommitment": "Yes",   // Yes/No
+  "auctionAvailability": "Maybe"  // Yes/No/Maybe
+}
+```
+
+and answers `201` with `{ "registration": { ... } }`. Every failure has the same
+body: `{ "error": { "code", "message", "fieldErrors" } }`, where `fieldErrors`
+is keyed by model field and carries the message to show under that input.
+
+### Layout
+
+```
+backend/
+├── server.js                 connect to MongoDB, then listen
+├── .env                      MONGODB_URI, MONGODB_DB, PORT, LEAGUE_SEASON
+└── src/
+    ├── app.js                express app — cors, json, routes, 404
+    ├── config/db.js          the mongoose connection
+    ├── models/               registration.model.js — fields, rules, indexes
+    ├── controllers/          registration.controller.js
+    └── routes/               registration.routes.js
+```
+
+Validation lives in the model, as Mongoose rules. The messages attached to each
+rule are what the owner reads next to the field, so keep them plain.
 
 ## How the form works
 
-`app/register/RegistrationForm.tsx` is a client component posting to the `registerTeam`
-server action in `app/register/actions.ts`. Fields are controlled so nothing is lost
-when a failed submission re-renders the form; the squad sheet lives in React state and
-rides along as a JSON hidden input.
+`frontend/app/register/RegistrationForm.tsx` is a client component posting to the
+`registerTeam` server action in `frontend/app/register/actions.ts`. Fields are
+controlled so nothing is lost when a failed submission re-renders the form.
 
 The action:
 
 - ignores submissions that fill the hidden `website` honeypot field,
-- validates server-side and returns per-field errors plus the design's status line,
-- enforces the squad rules — at least 11 named, at most 14, at most 3 guests,
-- drops blank player rows before saving,
-- allocates an entry reference (`RTPL5-1234`), retrying on the rare collision,
-- inserts with the Supabase **anon** key, so RLS is the real gate,
-- maps a `23505` on team name to a "that name is already entered" message,
+- forwards the answers to `POST /api/registrations`,
+- translates the API's field errors onto the inputs they belong to — the API
+  names fields after the data (`ownersMobile`), the form after the questions
+  (`mobile`),
 - returns the success state that swaps the form for the confirmation panel.
 
-No service-role key is used anywhere, so nothing privileged ships to the client.
+On the backend, `createRegistration`:
+
+- allocates an entry reference (`RTPL8-1234`), retrying on the rare collision,
+- rejects a second entry under the same team name, ignoring case, and returns it
+  as an error on the team name rather than a generic failure,
+- saves every entry as `status = 'pending'`.
 
 ### Reading the entries
 
-RLS lets anonymous visitors **insert only** — they cannot read entries back. View
-submissions in the Supabase dashboard (**Table editor → owner_registrations**), or sign
-an organiser in with Supabase Auth and build an admin page; the
-`authenticated organisers can read entries` policy already allows the select.
+```bash
+curl http://localhost:4000/api/registrations
+```
 
-Rows land as `status = 'pending'`; move them to `confirmed`, `waitlisted` or `rejected`
-as fees come in. The squad sits in the `players` jsonb column as
-`[{ name, role, status }]`.
-
-The "no more than three guests" rule is enforced in the server action rather than in
-SQL — counting elements inside a jsonb array needs a set-returning function, which a
-`CHECK` constraint cannot call.
+Or open the `registrations` collection in Atlas / Compass. Entries land as
+`pending`; `confirmed`, `waitlisted` and `rejected` are the other values the
+`status` field accepts as fees come in.
 
 ## Before launch
 
@@ -130,5 +186,14 @@ SQL — counting elements inside a jsonb array needs a set-returning function, w
 
 ## Deploying
 
-Push to Vercel (or any Node host) and set the two `NEXT_PUBLIC_SUPABASE_*` environment
-variables in the project settings. `npm run build` must pass first — it does today.
+Two deployments, not one.
+
+**Backend** — any Node host (Render, Railway, Fly, a VM): `npm start`, with
+`MONGODB_URI`, `MONGODB_DB` and `LEAGUE_SEASON` set. On Atlas, allow the host's IP in
+**Network Access**.
+
+**Frontend** — Vercel or any Node host, with `BACKEND_URL` set to the deployed
+API. Keep it unprefixed: `NEXT_PUBLIC_BACKEND_URL` would expose the API to the
+browser and bypass the server action.
+
+`npm run build` must pass in the frontend — it does today.

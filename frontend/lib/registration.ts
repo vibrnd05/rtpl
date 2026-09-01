@@ -5,7 +5,8 @@
  * is a "use server" module — it may only export async functions, so a plain
  * array exported from it arrives as `undefined` on the client.
  *
- * The same values are mirrored by CHECK constraints in supabase/schema.sql.
+ * The same values are the authoritative list in backend/src/constants/
+ * registration.ts, where the API validator and the Mongoose schema enforce them.
  */
 export const TSHIRT_SIZES = ["S", "M", "L", "XL", "XXL", "Other"] as const;
 export const YES_NO = ["Yes", "No"] as const;
