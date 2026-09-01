@@ -2,9 +2,11 @@ import express from "express";
 import cors from "cors";
 import registrationRoutes from "./routes/registration.routes.js";
 
+const allowedOrigins = ["https://rtpl.vibrnd.in", "http://localhost:3000"];
+
 const app = express();
 
-app.use(cors());
+app.use(cors({ origin: allowedOrigins }));
 app.use(express.json());
 
 app.get("/api/health", (_req, res) => {
