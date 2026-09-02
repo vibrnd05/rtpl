@@ -378,8 +378,8 @@
 
   /* The closing call to action. It used to be a slab of flat orange, which
      was a light-theme idea: on the navy it read as a different site bolted to
-     the bottom of this one. Now it is the same panel navy as the scoreboard
-     and the ticker, lifted one step off the page ground and ruled top and
+     the bottom of this one. Now it is the same panel navy as the
+     scoreboard, lifted one step off the page ground and ruled top and
      bottom, so the page closes in its own language.
 
      What keeps it from going inert is the light: warm spill entering from the
@@ -444,7 +444,7 @@
        context, so a bottom margin on the last child collapsed straight out of
        the section: the hero ended at the scoreboard's edge and the gap below
        it was bare page ground, which ::after — inset to this box — could not
-       reach. That was the flat navy strip above the ticker. */
+       reach. That was the flat navy strip below the hero. */
     padding-bottom: clamp(56px, 7vw, 104px);
   }
   .hero-stage::before {
@@ -498,7 +498,7 @@
         color-mix(in srgb, #dce9ff 17%, transparent) 232deg,
         transparent 240deg 360deg
       );
-    /* Light dies out before the ticker rather than stopping at an edge. */
+    /* Light dies out before the section end rather than stopping at an edge. */
     mask-image: linear-gradient(
       to bottom,
       #000 0%,
@@ -559,7 +559,7 @@
      margin below the scoreboard came out as a flat slab — the one part of the
      page with neither the lamps above it nor the band's stripes below. Peaking
      at 74% and easing back keeps the ground graduating right down to the
-     ticker, and the spill gives it something to graduate towards. */
+     section end, and the spill gives it something to graduate towards. */
   .hero-stage::after {
     content: "";
     position: absolute;
@@ -698,41 +698,6 @@
   /* Off reads as off: the mark goes quiet along with the sound. */
   .music-toggle[aria-pressed="false"] {
     color: color-mix(in srgb, var(--color-ink) 62%, transparent);
-  }
-
-  /* — ticker —
-     Full-bleed scrolling band. The track holds the phrase list twice and
-     travels exactly half its width, so the loop has no seam. */
-  .ticker {
-    overflow: hidden;
-    background: var(--color-night);
-    color: var(--color-ink);
-    border-block: 2px solid var(--color-divider);
-  }
-  .ticker-track {
-    display: flex;
-    width: max-content;
-    animation: rtpl-ticker 32s linear infinite;
-  }
-  .ticker:hover .ticker-track {
-    animation-play-state: paused;
-  }
-  .ticker-item {
-    display: flex;
-    align-items: center;
-    gap: 22px;
-    padding: 13px 22px;
-    font-family: var(--font-heading);
-    font-weight: 800;
-    font-size: 13px;
-    letter-spacing: 0.18em;
-    text-transform: uppercase;
-    white-space: nowrap;
-  }
-  /* Every other phrase in amber, so the band reads as a run of separate calls
-     rather than one long sentence. */
-  .ticker-item:nth-child(even) {
-    color: var(--color-gold);
   }
 
   /* — live dot, with the ping that makes it feel on-air — */
@@ -903,7 +868,6 @@
     .live-dot::after,
     .mark-glow::before,
     .hero-stage::before,
-    .ticker-track,
     .swipe {
       animation: none;
     }
@@ -1013,13 +977,6 @@
 @keyframes rtpl-swipe {
   to {
     background-size: 100% 0.26em;
-  }
-}
-
-/* Half the track is one full copy of the phrase list. */
-@keyframes rtpl-ticker {
-  to {
-    transform: translateX(-50%);
   }
 }
 

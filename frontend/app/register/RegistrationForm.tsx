@@ -33,7 +33,7 @@ function SectionHeading({
       data-reveal
     >
       <div>
-        <p className="tnum m-0 text-[12.5px] uppercase tracking-[0.1em] text-ink/65">
+        <p className="tnum m-0 text-[12.5px] uppercase tracking-widest text-ink/65">
           {index}
         </p>
         <h2 className="mt-3 text-[22px] font-extrabold tracking-[-0.01em]">
@@ -68,12 +68,12 @@ function Question({
     <div className="field">
       <Label
         htmlFor={htmlFor}
-        className="!mb-1.5 block text-[13px] font-semibold !text-ink"
+        className="mb-1.5! block text-[13px] font-semibold text-ink!"
       >
         {label}
         {required && <span className="ml-1 text-accent-700">*</span>}
       </Label>
-      {hint && <p className="mb-2 text-xs leading-[1.5] text-ink/60">{hint}</p>}
+      {hint && <p className="mb-2 text-xs leading-normal text-ink/60">{hint}</p>}
       {children}
       {error && <p className="mt-1.5 text-xs text-accent-700">{error}</p>}
     </div>
@@ -153,7 +153,7 @@ export function RegistrationForm() {
           <span className="inline-block h-2.5 w-2.5 bg-accent" />
           Entry received
         </p>
-        <h2 className="-ml-[0.058em] max-w-[26ch] text-[clamp(30px,4vw,50px)] font-extrabold leading-[1.06] tracking-[-0.025em]">
+        <h2 className="ml-[-0.058em] max-w-[26ch] text-[clamp(30px,4vw,50px)] font-extrabold leading-[1.06] tracking-tight">
           {state.teamName
             ? `${state.teamName} is in the draw.`
             : "Your entry is in the draw."}
@@ -163,7 +163,7 @@ export function RegistrationForm() {
           number you gave with the owner agreement, the fee schedule and the
           auction brief. Reference: {state.reference}
         </p>
-        <div className="mt-[34px] flex flex-wrap gap-3">
+        <div className="mt-8.5 flex flex-wrap gap-3">
           <Link href="/" className="btn btn-primary">
             Back to the league <span className="btn__arrow">→</span>
           </Link>
@@ -197,7 +197,7 @@ export function RegistrationForm() {
           <div className="grid gap-6">
             <Question
               label="Name of Owners with Table No"
-              hint="List every owner, each with their table number — e.g. Arjun Mehta (RT 187), Rohit Nair (RT 12)."
+              hint="E.g Arjun Mehta (RT 187), Rohit Nair (RT 12)."
               required
               htmlFor="owners"
               error={err.owners}
@@ -208,7 +208,6 @@ export function RegistrationForm() {
                 name="owners"
                 rows={3}
                 maxLength={400}
-                placeholder="Arjun Mehta (RT 187), Rohit Nair (RT 12)"
                 value={values.owners}
                 onChange={set("owners")}
                 aria-invalid={Boolean(err.owners)}
@@ -229,7 +228,6 @@ export function RegistrationForm() {
                 type="tel"
                 inputMode="tel"
                 maxLength={120}
-                placeholder="+91 98110 00000, +91 98110 11111"
                 value={values.mobile}
                 onChange={set("mobile")}
                 aria-invalid={Boolean(err.mobile)}
@@ -257,7 +255,6 @@ export function RegistrationForm() {
                 name="team"
                 type="text"
                 maxLength={80}
-                placeholder="Gurgaon Gladiators"
                 value={values.team}
                 onChange={set("team")}
                 aria-invalid={Boolean(err.team)}
@@ -274,11 +271,10 @@ export function RegistrationForm() {
               />
               {values.tshirt === "Other" && (
                 <input
-                  className="input mt-3 max-w-[280px]"
+                  className="input mt-3 max-w-70"
                   name="tshirt_other"
                   type="text"
                   maxLength={60}
-                  placeholder="Which size?"
                   aria-label="Other t-shirt size"
                   value={values.tshirt_other}
                   onChange={set("tshirt_other")}

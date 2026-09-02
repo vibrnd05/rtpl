@@ -2,29 +2,18 @@ import Link from "next/link";
 import Image from "next/image";
 import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
-import { Ticker } from "@/components/Ticker";
 import { CountUp } from "@/components/CountUp";
 import { DaysUntil } from "@/components/DaysUntil";
 import { FloodlightTower } from "@/components/FloodlightTower";
 import { LEAGUE } from "@/lib/league";
 
 /**
- * The landing page is deliberately short: the hero and its scoreboard, the
- * ticker, then the call to action. Everything else (schedule, teams, venue,
+ * The landing page is deliberately short: the hero and its scoreboard,
+ * then the call to action. Everything else (schedule, teams, venue,
  * FAQ) has been taken off this page — the header nav still points at
  * #schedule and friends, so those links go nowhere until those sections live
  * somewhere again.
  */
-
-/** Reads like a boundary board: short, loud, and all of it true. */
-const TICKER = [
-  `Season ${LEAGUE.season}`,
-  LEAGUE.dates,
-  "T10 under lights",
-  `${LEAGUE.teamCount} chapter sides`,
-  `${LEAGUE.slotsOpen} slots left`,
-  "Guwahati",
-] as const;
 
 function ScoreCell({
   value,
@@ -122,8 +111,6 @@ export default function Home() {
           </div>
         </div>
       </section>
-
-      <Ticker items={TICKER} />
 
       {/* Closing call to action */}
       <section className="cta-band">
