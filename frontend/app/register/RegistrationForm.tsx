@@ -196,8 +196,8 @@ export function RegistrationForm() {
         >
           <div className="grid gap-6">
             <Question
-              label="Name of Owners with Table No"
-              hint="E.g Arjun Mehta (RT 187), Rohit Nair (RT 12)."
+              label="Name of Owner with Table No"
+              hint="E.g Arjun Mehta (RT 187)"
               required
               htmlFor="owners"
               error={err.owners}
@@ -215,8 +215,7 @@ export function RegistrationForm() {
             </Question>
 
             <Question
-              label="Mobile Number of the Owners"
-              hint="Separate multiple numbers with a comma."
+              label="Mobile Number of the Owner"
               required
               htmlFor="mobile"
               error={err.mobile}
@@ -261,7 +260,7 @@ export function RegistrationForm() {
               />
             </Question>
 
-            <Question label="T-Shirt sizes" error={err.tshirt}>
+            <Question label="T-Shirt size" error={err.tshirt}>
               <Choice
                 name="tshirt"
                 options={TSHIRT_SIZES}
