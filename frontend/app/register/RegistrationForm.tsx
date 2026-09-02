@@ -307,7 +307,6 @@ export function RegistrationForm() {
 
             <Question
               label={`Auction Date would be ${LEAGUE.auctionDate}, please share your availability.`}
-              hint="Tentative."
               required
               error={err.auction}
             >

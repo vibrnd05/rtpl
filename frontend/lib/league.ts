@@ -12,7 +12,6 @@ export const LEAGUE = {
   entriesClose: "12 September 2026",
   slotsOpen: 2,
   teamCount: 5,
-  /* Tentative — quoted on the owner registration form. */
   entryFee: "Rs. 1.50 Lakhs",
   auctionDate: "13th December",
   email: "rtpl@roundtableindia.org",
