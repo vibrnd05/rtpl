@@ -84,7 +84,7 @@ export default function Home() {
             {/* The mark sits in its own grid column, lit from behind */}
             <div className="mark-glow">
               <Image
-                src="/rtpl-logo.png"
+                src="/rtpl-logo2.png"
                 alt=""
                 width={2800}
                 height={2000}

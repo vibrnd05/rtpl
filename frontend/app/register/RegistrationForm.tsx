@@ -292,7 +292,7 @@ export function RegistrationForm() {
           <div className="grid gap-7">
             <Question
               label="Owning a RTPL team involves a financial commitment, are you willing to fulfill that and timely?"
-              hint={`Tentative fees is ${LEAGUE.entryFee}.`}
+              hint={`Fees is ${LEAGUE.entryFee}.`}
               required
               error={err.financial}
             >
