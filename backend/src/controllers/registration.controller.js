@@ -9,20 +9,20 @@ export const createRegistration = async (req, res) => {
   const {
     owners,
     ownersMobile,
+    playerOwner,
     teamName,
-    tshirtSize,
-    tshirtSizeOther,
     financialCommitment,
+    mentor,
     auctionAvailability,
   } = req.body;
 
   const entry = {
     owners,
     ownersMobile,
+    playerOwner,
     teamName,
-    tshirtSize: tshirtSize || undefined,
-    tshirtSizeOther: tshirtSizeOther || undefined,
     financialCommitment,
+    mentor,
     auctionAvailability,
   };
 

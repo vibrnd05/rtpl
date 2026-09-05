@@ -70,10 +70,10 @@ export async function apiFetch<T>(
 export type RegistrationPayload = {
   owners: string;
   ownersMobile: string;
+  playerOwner: string;
   teamName: string;
-  tshirtSize?: string;
-  tshirtSizeOther?: string;
   financialCommitment: string;
+  mentor: string;
   auctionAvailability: string;
 };
 

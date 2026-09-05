@@ -1,6 +1,5 @@
 import mongoose from "mongoose";
 
-const TSHIRT_SIZES = ["S", "M", "L", "XL", "XXL", "Other"];
 const YES_NO = ["Yes", "No"];
 const YES_NO_MAYBE = ["Yes", "No", "Maybe"];
 
@@ -29,6 +28,20 @@ const registrationSchema = new mongoose.Schema(
       match: [/^[\d\s+(),/-]+$/, "Use digits, spaces and + ( ) , / - only."],
     },
 
+    playerOwner: {
+      type: String,
+      required: [
+        true,
+        "Please name the owner who will also register as a player.",
+      ],
+      trim: true,
+      minlength: [
+        2,
+        "Please name the owner who will also register as a player.",
+      ],
+      maxlength: [200, "Please keep this under 200 characters."],
+    },
+
     teamName: {
       type: String,
       required: [true, "A proposed team name is required."],
@@ -37,32 +50,21 @@ const registrationSchema = new mongoose.Schema(
       maxlength: [80, "Please keep the team name under 80 characters."],
     },
 
-    tshirtSize: {
-      type: String,
-      enum: {
-        values: TSHIRT_SIZES,
-        message: "Choose one of the listed sizes.",
-      },
-    },
-
-    tshirtSizeOther: {
-      type: String,
-      trim: true,
-      maxlength: [60, "Please keep this under 60 characters."],
-      required: [
-        function () {
-          return this.tshirtSize === "Other";
-        },
-        "Tell us which size you need.",
-      ],
-    },
-
     financialCommitment: {
       type: String,
       required: [true, "Please answer the financial commitment question."],
       enum: {
         values: YES_NO,
         message: "Please answer the financial commitment question.",
+      },
+    },
+
+    mentor: {
+      type: String,
+      required: [true, "Please answer the mentor question."],
+      enum: {
+        values: YES_NO,
+        message: "Please answer the mentor question.",
       },
     },
 

@@ -4,7 +4,7 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { registerTeam, type FormState } from "./actions";
-import { TSHIRT_SIZES, YES_NO, YES_NO_MAYBE } from "@/lib/registration";
+import { YES_NO, YES_NO_MAYBE } from "@/lib/registration";
 import { LEAGUE } from "@/lib/league";
 
 // Defined here, not in actions.ts: a "use server" module may only export
@@ -68,7 +68,7 @@ function Question({
     <div className="field">
       <Label
         htmlFor={htmlFor}
-        className="mb-1.5! block text-[13px] font-semibold text-ink!"
+        className="mb-1.5! block text-[14.5px] font-semibold text-ink!"
       >
         {label}
         {required && <span className="ml-1 text-accent-700">*</span>}
@@ -129,10 +129,10 @@ export function RegistrationForm() {
   const [values, setValues] = useState({
     owners: "",
     mobile: "",
+    playerOwner: "",
     team: "",
-    tshirt: "",
-    tshirt_other: "",
     financial: "",
+    mentor: "",
     auction: "",
   });
 
@@ -196,8 +196,8 @@ export function RegistrationForm() {
         >
           <div className="grid gap-6">
             <Question
-              label="Name of Owner with Table No"
-              hint="E.g Arjun Mehta (RT 187)"
+              label="Name of Owner and Co Owners with Table No and T Shirt Sizes"
+              hint="EG: Arjun Mehta (RT 187, L) and Ravi Sharma (RT 221, XL)"
               required
               htmlFor="owners"
               error={err.owners}
@@ -232,6 +232,24 @@ export function RegistrationForm() {
                 aria-invalid={Boolean(err.mobile)}
               />
             </Question>
+
+            <Question
+              label="Please give the name and confirmation of the owner who shall also register itself as a player"
+              required
+              htmlFor="playerOwner"
+              error={err.playerOwner}
+            >
+              <input
+                className="input"
+                id="playerOwner"
+                name="playerOwner"
+                type="text"
+                maxLength={200}
+                value={values.playerOwner}
+                onChange={set("playerOwner")}
+                aria-invalid={Boolean(err.playerOwner)}
+              />
+            </Question>
           </div>
         </SectionHeading>
       </section>
@@ -259,27 +277,6 @@ export function RegistrationForm() {
                 aria-invalid={Boolean(err.team)}
               />
             </Question>
-
-            <Question label="T-Shirt size" error={err.tshirt}>
-              <Choice
-                name="tshirt"
-                options={TSHIRT_SIZES}
-                value={values.tshirt}
-                onChange={pick("tshirt")}
-                invalid={Boolean(err.tshirt)}
-              />
-              {values.tshirt === "Other" && (
-                <input
-                  className="input mt-3 max-w-70"
-                  name="tshirt_other"
-                  type="text"
-                  maxLength={60}
-                  aria-label="Other t-shirt size"
-                  value={values.tshirt_other}
-                  onChange={set("tshirt_other")}
-                />
-              )}
-            </Question>
           </div>
         </SectionHeading>
       </section>
@@ -302,6 +299,21 @@ export function RegistrationForm() {
                 value={values.financial}
                 onChange={pick("financial")}
                 invalid={Boolean(err.financial)}
+              />
+            </Question>
+
+            <Question
+              label="Will your team be having any Mentor?"
+              hint="Charges: ₹7,500 approx"
+              required
+              error={err.mentor}
+            >
+              <Choice
+                name="mentor"
+                options={YES_NO}
+                value={values.mentor}
+                onChange={pick("mentor")}
+                invalid={Boolean(err.mentor)}
               />
             </Question>
 

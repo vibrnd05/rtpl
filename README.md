@@ -98,16 +98,16 @@ No authentication — owners submit the form, the entry is saved.
 | `GET`  | `/api/registrations`        | Every entry, newest first                          |
 | `GET`  | `/api/registrations/:id`    | One entry                                          |
 
-`POST /api/registrations` takes the six questions:
+`POST /api/registrations` takes the seven questions:
 
 ```jsonc
 {
-  "owners": "Arjun Mehta (RT 187), Rohit Nair (RT 12)",
+  "owners": "Arjun Mehta (RT 187, L) and Ravi Sharma (RT 221, XL)",
   "ownersMobile": "+91 98110 00000",
+  "playerOwner": "Arjun Mehta (RT 187) — confirmed",
   "teamName": "Gurgaon Gladiators",
-  "tshirtSize": "L",              // optional: S/M/L/XL/XXL/Other
-  "tshirtSizeOther": "",          // required only when tshirtSize is "Other"
   "financialCommitment": "Yes",   // Yes/No
+  "mentor": "Yes",                // Yes/No
   "auctionAvailability": "Maybe"  // Yes/No/Maybe
 }
 ```

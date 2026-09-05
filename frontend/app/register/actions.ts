@@ -28,10 +28,10 @@ export async function registerTeam(
   const values = {
     owners: str(formData, "owners"),
     mobile: str(formData, "mobile"),
+    playerOwner: str(formData, "playerOwner"),
     team: str(formData, "team"),
-    tshirt: str(formData, "tshirt"),
-    tshirt_other: str(formData, "tshirt_other"),
     financial: str(formData, "financial"),
+    mentor: str(formData, "mentor"),
     auction: str(formData, "auction"),
   };
 
@@ -44,10 +44,10 @@ export async function registerTeam(
     const result = await submitRegistration({
       owners: values.owners,
       ownersMobile: values.mobile,
+      playerOwner: values.playerOwner,
       teamName: values.team,
-      tshirtSize: values.tshirt,
-      tshirtSizeOther: values.tshirt_other,
       financialCommitment: values.financial,
+      mentor: values.mentor,
       auctionAvailability: values.auction,
     });
 

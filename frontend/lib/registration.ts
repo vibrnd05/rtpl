@@ -8,6 +8,5 @@
  * The same values are the authoritative list in backend/src/constants/
  * registration.ts, where the API validator and the Mongoose schema enforce them.
  */
-export const TSHIRT_SIZES = ["S", "M", "L", "XL", "XXL", "Other"] as const;
 export const YES_NO = ["Yes", "No"] as const;
 export const YES_NO_MAYBE = ["Yes", "No", "Maybe"] as const;
