@@ -67,7 +67,7 @@ export default function Home() {
               >
                 Two days of floodlit T10 cricket. Five chapter sides, one
                 trophy, and every run raising money for the Round Table India
-                schools programme. Squads of fifteen, entries close when the
+                schools programme. Squads of fourteen, entries close when the
                 fifth team is in.
               </p>
 
@@ -133,7 +133,7 @@ export default function Home() {
                 className="mt-5 max-w-[50ch] text-[15.5px] leading-[1.6] text-ink/75"
                 data-reveal
               >
-                Fifteen players, five chapter sides, and two days of floodlit
+                Fourteen players, five chapter sides, and two days of floodlit
                 cricket at {LEAGUE.venue.name}.
               </p>
 
