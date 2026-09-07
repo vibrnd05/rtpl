@@ -189,8 +189,13 @@ Or open the `registrations` collection in Atlas / Compass. Entries land as
 Two deployments, not one.
 
 **Backend** — any Node host (Render, Railway, Fly, a VM): `npm start`, with
-`MONGODB_URI`, `MONGODB_DB` and `LEAGUE_SEASON` set. On Atlas, allow the host's IP in
-**Network Access**.
+`MONGODB_URI`, `MONGODB_DB` and `LEAGUE_SEASON` set, plus `JWT_SECRET`,
+`ADMIN_USERNAME` and `ADMIN_PASSWORD` for the admin dashboard. The server exits
+at boot if any of those last three is missing, rather than failing at the first
+login attempt — so a deploy that stops with `JWT_SECRET is not set` means the
+host has no environment variable by that name. Give production its own
+`JWT_SECRET`; it does not need to match the one in local `.env`. On Atlas, allow
+the host's IP in **Network Access**.
 
 **Frontend** — Vercel or any Node host, with `BACKEND_URL` set to the deployed
 API. Keep it unprefixed: `NEXT_PUBLIC_BACKEND_URL` would expose the API to the

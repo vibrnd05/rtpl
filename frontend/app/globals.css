@@ -152,6 +152,52 @@
     opacity: 0.5;
   }
 
+  /* — the header's overflow menu —
+     Phones only. "Register now" is what the bar is for, so it keeps the row;
+     the admin link moves behind a 36px trigger rather than fighting it for a
+     335px line. The panel hangs off the trigger's right edge so it opens
+     inwards and never runs past the screen. */
+  .nav-menu {
+    position: relative;
+  }
+  .nav-menu > summary {
+    /* Square: the trigger costs the bar an icon's width and nothing more. */
+    width: 36px;
+    padding-inline: 0;
+    /* Firefox draws the disclosure triangle off `list-style`, Safari and
+       Chrome off the marker pseudo-element — both have to go. */
+    list-style: none;
+  }
+  .nav-menu > summary::-webkit-details-marker {
+    display: none;
+  }
+  .nav-menu__panel {
+    position: absolute;
+    top: calc(100% + 8px);
+    right: 0;
+    min-width: 168px;
+    padding: var(--space-1);
+    background: var(--color-surface);
+    border: 1px solid var(--color-divider);
+    border-radius: var(--radius-box);
+    /* The bar is sticky and the page scrolls under it, so the panel needs a
+       shadow to read as floating above the content rather than cut into it. */
+    box-shadow: 0 12px 28px rgba(0, 0, 0, 0.45);
+  }
+  .nav-menu__item {
+    display: block;
+    padding: 9px 11px;
+    font-size: 14px;
+    font-weight: 600;
+    color: var(--color-text);
+    text-decoration: none;
+    border-radius: calc(var(--radius-box) - 2px);
+    transition: background-color 0.16s ease;
+  }
+  .nav-menu__item:hover {
+    background: color-mix(in srgb, var(--color-text) 8%, transparent);
+  }
+
   /* — eyebrow / kicker — */
   .eyebrow {
     font-size: 13px;
