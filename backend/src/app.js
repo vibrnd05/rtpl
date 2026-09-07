@@ -1,6 +1,7 @@
 import express from "express";
 import cors from "cors";
 import registrationRoutes from "./routes/registration.routes.js";
+import adminRoutes from "./routes/admin.routes.js";
 
 const allowedOrigins = ["https://rtpl.vibrnd.in", "http://localhost:3000"];
 
@@ -13,6 +14,7 @@ app.get("/api/health", (_req, res) => {
   res.json({ status: "ok" });
 });
 
+app.use("/api/admin", adminRoutes);
 app.use("/api/registrations", registrationRoutes);
 
 app.use((req, res) => {

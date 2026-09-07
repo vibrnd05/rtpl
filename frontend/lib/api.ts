@@ -92,3 +92,41 @@ export function submitRegistration(payload: RegistrationPayload) {
     body: JSON.stringify(payload),
   });
 }
+
+/* -- Admin ---------------------------------------------------------------- */
+
+export type AdminLoginReceipt = {
+  token: string;
+  /** Seconds the token stays valid — the session cookie is given the same life. */
+  expiresIn: number;
+};
+
+export function adminLogin(username: string, password: string) {
+  return apiFetch<AdminLoginReceipt>("/api/admin/login", {
+    method: "POST",
+    body: JSON.stringify({ username, password }),
+  });
+}
+
+/** Every field the dashboard shows, as the API returns it. */
+export type Registration = {
+  _id: string;
+  reference: string;
+  owners: string;
+  ownersMobile: string;
+  playerOwner: string;
+  teamName: string;
+  financialCommitment: string;
+  mentor: string;
+  auctionAvailability: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function listRegistrations(token: string) {
+  return apiFetch<{ count: number; registrations: Registration[] }>(
+    "/api/registrations",
+    { headers: { Authorization: `Bearer ${token}` } }
+  );
+}

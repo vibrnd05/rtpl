@@ -4,11 +4,15 @@ import {
   getRegistrations,
   getRegistrationById,
 } from "../controllers/registration.controller.js";
+import requireAdmin from "../middleware/requireAdmin.js";
 
 const router = express.Router();
 
+// Open — this is the owner registration form posting an entry.
 router.post("/", createRegistration);
-router.get("/", getRegistrations);
-router.get("/:id", getRegistrationById);
+
+// Reading entries back is the admin dashboard's job, so both are gated.
+router.get("/", requireAdmin, getRegistrations);
+router.get("/:id", requireAdmin, getRegistrationById);
 
 export default router;

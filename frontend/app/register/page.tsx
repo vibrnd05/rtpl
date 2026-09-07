@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Tricolor } from "@/components/Tricolor";
 import { RegistrationForm } from "./RegistrationForm";
 import { LEAGUE } from "@/lib/league";
 
@@ -40,9 +39,6 @@ export default function RegisterPage() {
           </a>{" "}
           · {LEAGUE.phone}
         </footer>
-        <div className="mb-7">
-          <Tricolor middle="divider" />
-        </div>
       </div>
     </>
   );

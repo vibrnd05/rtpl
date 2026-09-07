@@ -152,13 +152,6 @@
     opacity: 0.5;
   }
 
-  /* — the three-band 4px stripe at the top of the header and foot of the page — */
-  .tricolor {
-    display: grid;
-    grid-template-columns: 1fr 1fr 1fr;
-    height: 4px;
-  }
-
   /* — eyebrow / kicker — */
   .eyebrow {
     font-size: 13px;

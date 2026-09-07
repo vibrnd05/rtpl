@@ -26,12 +26,12 @@ function Wordmark() {
 }
 
 /**
- * `league` — wordmark and the register CTA (landing page).
+ * `league` — wordmark, the admin login link and the register CTA (landing page).
  * `back`   — wordmark plus a single return link (registration page).
  *
  * There is no section nav: the links it held (League, Schedule, Teams, Venue,
  * FAQ) pointed at sections that are not on the page, so the bar now carries
- * the one action that goes anywhere.
+ * only the actions that go somewhere.
  */
 export function SiteHeader({
   variant = "league",
@@ -47,9 +47,14 @@ export function SiteHeader({
         <Wordmark />
 
         {variant === "league" ? (
-          <Link href="/register" className="btn btn-primary">
-            Register now
-          </Link>
+          <div className="flex items-center gap-2.5">
+            <Link href="/admin/login" className="btn btn-secondary">
+              Admin login
+            </Link>
+            <Link href="/register" className="btn btn-primary">
+              Register now
+            </Link>
+          </div>
         ) : (
           <Link
             href="/"

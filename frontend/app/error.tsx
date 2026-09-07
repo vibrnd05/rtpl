@@ -3,7 +3,6 @@
 import Link from "next/link";
 import { useEffect } from "react";
 import { SiteHeader } from "@/components/SiteHeader";
-import { Tricolor } from "@/components/Tricolor";
 import { LEAGUE } from "@/lib/league";
 
 /**
@@ -74,12 +73,6 @@ export default function Error({
             )}
           </p>
         </section>
-      </div>
-
-      <div className="shell-narrow">
-        <div className="mb-7">
-          <Tricolor middle="divider" />
-        </div>
       </div>
     </>
   );

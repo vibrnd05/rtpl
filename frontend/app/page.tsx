@@ -76,7 +76,7 @@ export default function Home() {
                   Register now <span className="btn__arrow">→</span>
                 </Link>
                 <a href="#schedule" className="btn btn-ghost">
-                  See the schedule <span className="btn__arrow">↓</span>
+                  See the schedule
                 </a>
               </div>
             </div>

@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Tricolor } from "./Tricolor";
 import { BallMark } from "./CricketBall";
 import { LEAGUE } from "@/lib/league";
 
@@ -72,8 +71,6 @@ export function SiteFooter() {
           © {new Date(LEAGUE.firstBallISO).getFullYear()} Round Table India.
         </p>
       </div>
-
-      <Tricolor middle="divider" />
     </footer>
   );
 }
