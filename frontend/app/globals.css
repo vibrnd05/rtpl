@@ -754,6 +754,163 @@
     background: inherit;
     animation: rtpl-ping 2s cubic-bezier(0, 0, 0.2, 1) infinite;
   }
+
+  /* — photo gallery —
+     A tight grid of square tiles, like a phone's own photo gallery: three
+     across on a narrow screen, widening as the viewport does, with hairline
+     gaps instead of gutters so the thumbnails read as one sheet of photos. */
+  .gallery-grid {
+    display: grid;
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+    gap: 3px;
+  }
+  @media (min-width: 640px) {
+    .gallery-grid {
+      grid-template-columns: repeat(4, minmax(0, 1fr));
+      gap: 4px;
+    }
+  }
+  @media (min-width: 1024px) {
+    .gallery-grid {
+      grid-template-columns: repeat(6, minmax(0, 1fr));
+    }
+  }
+  .gallery-thumb {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    overflow: hidden;
+    padding: 0;
+    border: 0;
+    background: var(--color-surface);
+    cursor: pointer;
+  }
+  .gallery-thumb img {
+    transition: transform 0.3s ease;
+  }
+  .gallery-thumb:hover img,
+  .gallery-thumb:focus-visible img {
+    transform: scale(1.06);
+  }
+  .gallery-thumb:focus-visible {
+    outline: 2px solid var(--color-accent);
+    outline-offset: 2px;
+    z-index: 1;
+  }
+
+  /* — lightbox —
+     Full-screen viewer with left/right buttons either side of the photo.
+     The frame leaves room for the nav buttons and caption so the image never
+     sits flush against the chrome around it. */
+  .lightbox {
+    position: fixed;
+    inset: 0;
+    z-index: 70;
+    display: grid;
+    grid-template-columns: auto 1fr auto;
+    align-items: center;
+    gap: clamp(4px, 2vw, 20px);
+    padding: clamp(14px, 4vw, 32px);
+    padding-bottom: clamp(44px, 7vw, 64px);
+    background: rgba(2, 6, 16, 0.94);
+    backdrop-filter: blur(2px);
+  }
+  .lightbox__frame {
+    position: relative;
+    grid-column: 2;
+    width: 100%;
+    height: 100%;
+  }
+  .lightbox__close {
+    position: absolute;
+    top: clamp(10px, 3vw, 22px);
+    right: clamp(10px, 3vw, 22px);
+    z-index: 1;
+    display: grid;
+    place-items: center;
+    width: 40px;
+    height: 40px;
+    border: 1px solid var(--color-divider);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-night) 85%, transparent);
+    color: var(--color-ink);
+    font-size: 15px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.16s ease, border-color 0.16s ease;
+  }
+  .lightbox__close:hover {
+    background: var(--color-night-600);
+    border-color: var(--color-accent);
+  }
+  .lightbox__nav {
+    display: grid;
+    place-items: center;
+    width: 48px;
+    height: 48px;
+    flex-shrink: 0;
+    border: 1px solid var(--color-divider);
+    border-radius: 999px;
+    background: color-mix(in srgb, var(--color-night) 85%, transparent);
+    color: var(--color-ink);
+    font-size: 26px;
+    line-height: 1;
+    cursor: pointer;
+    transition: background-color 0.16s ease, border-color 0.16s ease, transform 0.16s ease;
+  }
+  .lightbox__nav--prev {
+    grid-column: 1;
+  }
+  .lightbox__nav--next {
+    grid-column: 3;
+  }
+  .lightbox__nav:hover {
+    background: var(--color-night-600);
+    border-color: var(--color-accent);
+    color: var(--color-accent-600);
+  }
+  .lightbox__nav:active {
+    transform: scale(0.94);
+  }
+  .lightbox__caption {
+    position: absolute;
+    bottom: clamp(10px, 3vw, 18px);
+    left: 0;
+    right: 0;
+    margin: 0;
+    text-align: center;
+    font-size: 12.5px;
+    letter-spacing: 0.04em;
+    color: var(--color-stone);
+  }
+  @media (max-width: 640px) {
+    .lightbox {
+      grid-template-columns: 1fr;
+      grid-template-rows: 1fr auto;
+      padding-inline: 8px;
+    }
+    .lightbox__frame {
+      grid-column: 1;
+      grid-row: 1;
+    }
+    .lightbox__nav {
+      grid-row: 2;
+      width: 40px;
+      height: 40px;
+      font-size: 22px;
+    }
+    .lightbox__nav--prev {
+      grid-column: 1;
+      justify-self: start;
+    }
+    .lightbox__nav--next {
+      grid-column: 1;
+      justify-self: end;
+    }
+    .lightbox__caption {
+      bottom: auto;
+      top: calc(100% - 46px);
+    }
+  }
 }
 
 @layer utilities {

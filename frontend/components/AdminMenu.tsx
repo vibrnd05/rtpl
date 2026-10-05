@@ -56,6 +56,9 @@ export function AdminMenu() {
         <MenuIcon />
       </summary>
       <div className="nav-menu__panel">
+        <Link href="/gallery" className="nav-menu__item">
+          Gallery
+        </Link>
         <Link href="/admin/login" className="nav-menu__item">
           Admin login
         </Link>

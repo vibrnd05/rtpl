@@ -57,6 +57,12 @@ export function SiteHeader({
             {/* From md up the admin link is a button of its own, ahead of the
                 CTA. Below that it is the menu at the end of the bar instead. */}
             <Link
+              href="/gallery"
+              className="btn btn-secondary hidden md:inline-flex"
+            >
+              Gallery
+            </Link>
+            <Link
               href="/admin/login"
               className="btn btn-secondary hidden md:inline-flex"
             >
