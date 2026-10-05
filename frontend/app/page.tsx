@@ -5,6 +5,8 @@ import { SiteFooter } from "@/components/SiteFooter";
 import { CountUp } from "@/components/CountUp";
 import { DaysUntil } from "@/components/DaysUntil";
 import { FloodlightTower } from "@/components/FloodlightTower";
+import { LastSeason } from "@/components/LastSeason";
+import { getLastSeasonTeams } from "@/lib/teams";
 import { LEAGUE } from "@/lib/league";
 
 /**
@@ -31,6 +33,8 @@ function ScoreCell({
 }
 
 export default function Home() {
+  const lastSeasonTeams = getLastSeasonTeams();
+
   return (
     <>
       <SiteHeader />
@@ -111,6 +115,10 @@ export default function Home() {
           </div>
         </div>
       </section>
+
+      {lastSeasonTeams.length > 0 && (
+        <LastSeason teams={lastSeasonTeams} season={LEAGUE.season - 1} />
+      )}
 
       {/* Closing call to action */}
       <section className="cta-band">

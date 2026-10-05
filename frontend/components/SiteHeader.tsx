@@ -58,7 +58,7 @@ export function SiteHeader({
                 CTA. Below that it is the menu at the end of the bar instead. */}
             <Link
               href="/gallery"
-              className="btn btn-secondary hidden md:inline-flex"
+              className="hidden shrink-0 text-[13px] font-semibold uppercase tracking-[0.08em] text-ink transition-colors hover:text-accent-700 md:inline-flex"
             >
               Gallery
             </Link>

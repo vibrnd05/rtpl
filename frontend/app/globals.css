@@ -465,6 +465,255 @@
     line-height: 1.35;
   }
 
+  /* — last season's champions —
+     Stays on the page's own paper ground, the way the hero above it does —
+     it is the night-coloured cards (.champion-banner, .team-card) that
+     supply the contrast. Putting the section itself on a night panel like
+     .cta-band's made the two run together into one dark mass with only a
+     hairline between them; .rule, the system's actual separator, marks the
+     seam instead. */
+  .last-season {
+    position: relative;
+    isolation: isolate;
+  }
+  .last-season::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background: radial-gradient(
+        42% 60% at 4% 0%,
+        color-mix(in srgb, var(--color-gold) 9%, transparent),
+        transparent 72%
+      ),
+      radial-gradient(
+        46% 60% at 100% 100%,
+        color-mix(in srgb, var(--color-accent) 7%, transparent),
+        transparent 70%
+      );
+  }
+
+  /* Static, not pinging like .live-dot — this result is already final. */
+  .recap-dot {
+    display: inline-block;
+    width: 10px;
+    height: 10px;
+    background: var(--color-gold);
+    border-radius: 2px;
+  }
+  .eyebrow--gold {
+    color: var(--color-gold-700);
+  }
+
+  /* A gold sweep, same timing as .swipe's orange one. */
+  .swipe--gold {
+    background-image: linear-gradient(var(--color-gold), var(--color-gold));
+  }
+
+  .champion-banner {
+    position: relative;
+    display: grid;
+    grid-template-columns: auto 1fr;
+    align-items: center;
+    gap: clamp(20px, 4vw, 36px);
+    padding: clamp(22px, 3.6vw, 36px);
+    background: var(--color-night-600);
+    border: 2px solid color-mix(in srgb, var(--color-gold) 45%, var(--color-divider));
+    border-radius: var(--radius-box);
+    overflow: hidden;
+  }
+  /* Diagonal stitching, the same texture as .cta-band, so the two "result"
+     panels on the page read as the same material. */
+  .champion-banner::before {
+    content: "";
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.6;
+    background-image: repeating-linear-gradient(
+      64deg,
+      color-mix(in srgb, var(--color-gold) 7%, transparent) 0 2px,
+      transparent 2px 15px
+    );
+  }
+  /* A floodlight pool breathing behind the medal, off the tower's own
+     bloom keyframe. */
+  .champion-banner::after {
+    content: "";
+    position: absolute;
+    left: clamp(4px, 2vw, 18px);
+    top: 50%;
+    width: clamp(150px, 20vw, 230px);
+    height: clamp(150px, 20vw, 230px);
+    transform: translateY(-50%);
+    z-index: 0;
+    pointer-events: none;
+    border-radius: 50%;
+    background: radial-gradient(
+      closest-side,
+      color-mix(in srgb, var(--color-gold) 32%, transparent),
+      transparent 72%
+    );
+    animation: rtpl-bloom 4.5s ease-in-out infinite alternate;
+  }
+  .champion-banner > * {
+    position: relative;
+    z-index: 1;
+  }
+  .champion-medal {
+    position: relative;
+    width: clamp(104px, 13vw, 148px);
+    height: clamp(104px, 13vw, 148px);
+    flex-shrink: 0;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 3px solid var(--color-gold);
+    border-radius: 999px;
+    box-shadow:
+      0 0 0 6px color-mix(in srgb, var(--color-gold) 16%, transparent),
+      0 16px 30px rgba(0, 0, 0, 0.5);
+  }
+  .champion-medal__inner {
+    position: absolute;
+    inset: 15%;
+  }
+  .champion-medal__trophy {
+    position: absolute;
+    top: -6px;
+    right: -6px;
+    display: grid;
+    place-items: center;
+    width: 32px;
+    height: 32px;
+    background: var(--color-gold);
+    color: #241a00;
+    border-radius: 999px;
+    border: 2px solid var(--color-night-600);
+    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
+  }
+  .champion-banner__chip {
+    background: var(--color-gold);
+    color: #241a00;
+  }
+  @media (max-width: 480px) {
+    .champion-banner {
+      grid-template-columns: 1fr;
+      justify-items: start;
+    }
+    .champion-banner::after {
+      left: 50%;
+      transform: translate(-50%, -62%);
+    }
+  }
+
+  .teams-grid {
+    display: grid;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 12px;
+  }
+  @media (min-width: 640px) {
+    .teams-grid {
+      grid-template-columns: repeat(3, minmax(0, 1fr));
+    }
+  }
+  @media (min-width: 1024px) {
+    .teams-grid {
+      grid-template-columns: repeat(5, minmax(0, 1fr));
+    }
+  }
+  .team-card {
+    position: relative;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 4px;
+    padding: 22px 14px 18px;
+    background: var(--color-night-600);
+    border: 2px solid var(--color-divider);
+    border-radius: var(--radius-box);
+    text-align: center;
+    overflow: hidden;
+    transition: border-color 0.18s ease, transform 0.18s ease;
+  }
+  /* A gold bar sweeps in along the foot, same move as the scoreboard
+     cells' accent sweep, so the two "stats" surfaces answer each other. */
+  .team-card::after {
+    content: "";
+    position: absolute;
+    inset-inline: 0;
+    bottom: 0;
+    height: 3px;
+    background: var(--color-gold);
+    transform: scaleX(0);
+    transform-origin: left;
+    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+  }
+  .team-card:hover::after {
+    transform: scaleX(1);
+  }
+  .team-card:hover {
+    border-color: color-mix(in srgb, var(--color-gold) 55%, var(--color-divider));
+    transform: translateY(-3px);
+  }
+  .team-card--champion {
+    border-color: color-mix(in srgb, var(--color-gold) 55%, var(--color-divider));
+  }
+  .team-card--champion:hover {
+    border-color: var(--color-gold);
+  }
+  .team-card__medal {
+    position: relative;
+    width: clamp(68px, 9vw, 88px);
+    height: clamp(68px, 9vw, 88px);
+    margin-bottom: 8px;
+    overflow: hidden;
+    background: var(--color-surface);
+    border: 2px solid var(--color-divider);
+    border-radius: 999px;
+  }
+  .team-card__medal-inner {
+    position: absolute;
+    inset: 14%;
+  }
+  .team-card--champion .team-card__medal {
+    border-color: var(--color-gold);
+    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-gold) 16%, transparent);
+  }
+  .team-card__name {
+    margin: 0;
+    font-size: 13.5px;
+    font-weight: 800;
+    letter-spacing: 0.01em;
+  }
+  .team-card__tag {
+    margin: 0;
+    font-size: 10.5px;
+    font-weight: 600;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+  }
+  .team-card--champion .team-card__tag {
+    color: var(--color-gold-700);
+  }
+  .team-card__badge {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    display: inline-flex;
+    align-items: center;
+    gap: 3px;
+    padding: 3px 8px;
+    background: var(--color-gold);
+    color: #241a00;
+    font-size: 10px;
+    font-weight: 800;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    border-radius: 999px;
+  }
 
   /* — the hero stage —
      A night match: two towers off-frame, one warm and one cool, throwing rays
