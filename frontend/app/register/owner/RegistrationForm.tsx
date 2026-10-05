@@ -167,7 +167,7 @@ export function RegistrationForm() {
           <Link href="/" className="btn btn-primary">
             Back to the league <span className="btn__arrow">→</span>
           </Link>
-          <a href="/register" className="btn btn-ghost">
+          <a href="/register/owner" className="btn btn-ghost">
             Submit another team
           </a>
         </div>

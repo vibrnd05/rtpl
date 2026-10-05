@@ -1,17 +1,18 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
-import { PlayerRegistrationForm } from "./PlayerRegistrationForm";
-import { getLastSeasonTeams } from "@/lib/teams";
+import { RegistrationForm } from "./RegistrationForm";
 import { LEAGUE } from "@/lib/league";
 
+// Owner entries are closed for this season — the page is kept at this URL
+// for the tournament desk's reference, but nothing on the site links to it
+// any more, and it is kept out of search.
 export const metadata: Metadata = {
-  title: `Player registration - RTPL Season ${LEAGUE.season}`,
-  description: `Register as a player for the Round Table Premier League Season ${LEAGUE.season}.`,
+  title: `Owner registration - RTPL Season ${LEAGUE.season}`,
+  description: `Enter your chapter into the Round Table Premier League. Entries close ${LEAGUE.entriesClose}.`,
+  robots: { index: false, follow: false },
 };
 
 export default function RegisterPage() {
-  const teams = getLastSeasonTeams().map((team) => team.name);
-
   return (
     <>
       <SiteHeader variant="back" />
@@ -22,20 +23,13 @@ export default function RegisterPage() {
             className="ml-[-0.058em] text-[clamp(38px,5.6vw,68px)] font-extrabold leading-[1.04] tracking-[-0.03em]"
             data-reveal
           >
-            Player registration
+            Owner registration
           </h1>
-          <p
-            className="mt-4 max-w-[52ch] text-[15.5px] leading-[1.65] text-ink/75"
-            data-reveal
-          >
-            Sign up to play Season {LEAGUE.season} under one of the five
-            chapter sides.
-          </p>
         </section>
 
         <hr className="rule" />
 
-        <PlayerRegistrationForm teams={teams} />
+        <RegistrationForm />
       </div>
 
       <div className="shell-narrow">

@@ -1,6 +1,6 @@
 "use server";
 
-import { submitPlayer } from "@/lib/api";
+import { submitRegistration } from "@/lib/api";
 import { LEAGUE } from "@/lib/league";
 
 export type FormState = {
@@ -9,7 +9,7 @@ export type FormState = {
   fieldErrors: Record<string, string>;
   /** Submitted values, echoed back so the form survives a failed round trip. */
   values: Record<string, string>;
-  fullName?: string;
+  teamName?: string;
   reference?: string;
 };
 
@@ -19,30 +19,37 @@ const str = (data: FormData, key: string) =>
 /**
  * Shapes the submission, forwards it to the API, and turns the answer back
  * into form state. Validation lives in the Mongoose model, so the rules the
- * database enforces and the rules the player sees cannot drift apart.
+ * database enforces and the rules the owner sees cannot drift apart.
  */
-export async function registerPlayer(
+export async function registerTeam(
   _prevState: FormState,
   formData: FormData
 ): Promise<FormState> {
   const values = {
-    fullName: str(formData, "fullName"),
+    owners: str(formData, "owners"),
     mobile: str(formData, "mobile"),
-    email: str(formData, "email"),
-    dateOfBirth: str(formData, "dateOfBirth"),
+    playerOwner: str(formData, "playerOwner"),
     team: str(formData, "team"),
-    playingRole: str(formData, "playingRole"),
-    tShirtSize: str(formData, "tShirtSize"),
-    tableNumber: str(formData, "tableNumber"),
+    financial: str(formData, "financial"),
+    mentor: str(formData, "mentor"),
+    auction: str(formData, "auction"),
   };
 
-  // Honeypot — bots fill every field, players never see this one.
+  // Honeypot — bots fill every field, owners never see this one.
   if (str(formData, "website")) {
     return { status: "success", message: "", fieldErrors: {}, values };
   }
 
   try {
-    const result = await submitPlayer(values);
+    const result = await submitRegistration({
+      owners: values.owners,
+      ownersMobile: values.mobile,
+      playerOwner: values.playerOwner,
+      teamName: values.team,
+      financialCommitment: values.financial,
+      mentor: values.mentor,
+      auctionAvailability: values.auction,
+    });
 
     if (result.ok) {
       return {
@@ -50,17 +57,17 @@ export async function registerPlayer(
         message: "",
         fieldErrors: {},
         values,
-        fullName: result.data.player.fullName,
-        reference: result.data.player.reference,
+        teamName: result.data.registration.teamName,
+        reference: result.data.registration.reference,
       };
     }
 
-    console.error("[rtpl] player registration rejected", result.status, result.error);
+    console.error("[rtpl] registration rejected", result.status, result.error);
 
     return {
       status: "error",
-      // A server fault is not the player's to act on, so they get the
-      // generic line and a way to reach the desk instead.
+      // A server fault is not the owner's to act on, so they get the generic
+      // line and a way to reach the desk instead.
       message:
         result.status >= 500
           ? `We could not save your entry just now. Please try again in a moment, or email ${LEAGUE.email}.`
@@ -69,7 +76,7 @@ export async function registerPlayer(
       values,
     };
   } catch (err) {
-    console.error("[rtpl] player registration threw", err);
+    console.error("[rtpl] registration threw", err);
     return {
       status: "error",
       message: "Registration is temporarily unavailable. Please try again shortly.",

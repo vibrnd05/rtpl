@@ -93,6 +93,36 @@ export function submitRegistration(payload: RegistrationPayload) {
   });
 }
 
+/* -- Players ---------------------------------------------------------------- */
+
+export type PlayerPayload = {
+  fullName: string;
+  mobile: string;
+  email: string;
+  dateOfBirth: string;
+  team: string;
+  playingRole: string;
+  tShirtSize: string;
+  tableNumber: string;
+};
+
+export type PlayerReceipt = {
+  player: {
+    reference: string;
+    fullName: string;
+    team: string;
+    status: string;
+    createdAt: string;
+  };
+};
+
+export function submitPlayer(payload: PlayerPayload) {
+  return apiFetch<PlayerReceipt>("/api/players", {
+    method: "POST",
+    body: JSON.stringify(payload),
+  });
+}
+
 /* -- Admin ---------------------------------------------------------------- */
 
 export type AdminLoginReceipt = {
@@ -129,4 +159,27 @@ export function listRegistrations(token: string) {
     "/api/registrations",
     { headers: { Authorization: `Bearer ${token}` } }
   );
+}
+
+/** Every field the dashboard shows, as the API returns it. */
+export type Player = {
+  _id: string;
+  reference: string;
+  fullName: string;
+  mobile: string;
+  email: string;
+  dateOfBirth: string;
+  team: string;
+  playingRole: string;
+  tShirtSize: string;
+  tableNumber: string;
+  status: string;
+  createdAt: string;
+  updatedAt: string;
+};
+
+export function listPlayers(token: string) {
+  return apiFetch<{ count: number; players: Player[] }>("/api/players", {
+    headers: { Authorization: `Bearer ${token}` },
+  });
 }

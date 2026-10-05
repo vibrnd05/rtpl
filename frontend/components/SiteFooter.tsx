@@ -58,7 +58,7 @@ export function SiteFooter() {
                 href="/register"
                 className="font-semibold text-accent-700 underline decoration-accent decoration-2 underline-offset-4 transition-colors hover:text-accent-600"
               >
-                Owner registration form
+                Player registration form
               </Link>
               <br />
               <span className="text-ink/70">Closes {LEAGUE.entriesClose}</span>
