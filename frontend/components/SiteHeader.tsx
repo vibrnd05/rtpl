@@ -4,11 +4,16 @@ import { ScrollProgress } from "./ScrollProgress";
 import { MobileMenu } from "./MobileMenu";
 
 /**
- * The wordmark is artwork rather than type. Its letterforms are near-black,
- * which would disappear on the navy ground were it not for the white keyline
- * cut around them — that outline is what makes it read, so do not strip it or
- * recolour the file. Sized by height with the width left to follow, since the
- * source is 1237x214 and only its height matters against the 68px bar.
+ * Crest, then wordmark. The crest is a fixed-size badge (shrink-0) so it
+ * never gets squeezed; the wordmark text is the one that gives way under
+ * max-w-full if the bar runs out of room on a narrow phone.
+ *
+ * The wordmark itself is artwork rather than type. Its letterforms are
+ * near-black, which would disappear on the navy ground were it not for the
+ * white keyline cut around them — that outline is what makes it read, so do
+ * not strip it or recolour the file. Sized by height with the width left to
+ * follow, since the source is 1237x214 and only its height matters against
+ * the 68px bar.
  *
  * 28px on a phone rather than 32px: the source is 5.8 times wider than it is
  * tall, so every pixel of height costs six of width on the row where width is
@@ -17,7 +22,15 @@ import { MobileMenu } from "./MobileMenu";
  */
 function Wordmark() {
   return (
-    <Link href="/" className="mr-auto flex min-w-0 items-center">
+    <Link href="/" className="mr-auto flex min-w-0 shrink items-center gap-2">
+      <Image
+        src="/rtpl-logo2.png"
+        alt=""
+        width={1254}
+        height={1254}
+        priority
+        className="h-8 w-8 shrink-0 object-contain md:h-11 md:w-11"
+      />
       <Image
         src="/rtpl-text-white.png"
         alt="RTPL"

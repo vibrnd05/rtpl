@@ -122,12 +122,8 @@ export default function Home() {
         <div className="cta-band__inner shell">
           <div className="grid items-center gap-10 md:grid-cols-[minmax(0,1fr)_auto]">
             <div>
-              <span className="chip bg-accent text-white" data-reveal>
-                Entries close {LEAGUE.entriesClose}
-              </span>
-
               <h2
-                className="ml-[-0.058em] mt-5 text-[clamp(31px,6vw,60px)] font-extrabold leading-[1.05] tracking-tight"
+                className="ml-[-0.058em] text-[clamp(31px,6vw,60px)] font-extrabold leading-[1.05] tracking-tight"
                 data-reveal
               >
                 <span className="block text-accent-600">Pick up a bat.</span>
