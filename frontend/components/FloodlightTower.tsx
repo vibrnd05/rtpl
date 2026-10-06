@@ -34,9 +34,12 @@ const LEG_R = { bottom: 142, top: 112 };
 const MAST_TOP = 150;
 const BAYS = 13;
 
+/* Floodlights are white — real stadium lamps, not coloured stage gels. The
+   two towers differ only in colour temperature: a warm tungsten-ish cream on
+   the left, a crisp cool white on the right. */
 const TONE = {
-  warm: { lamp: "var(--color-gold)", core: "#fff4d6" },
-  cool: { lamp: "#dce9ff", core: "#ffffff" },
+  warm: { lamp: "#fff1e0", core: "#fffaf2" },
+  cool: { lamp: "#ffffff", core: "#ffffff" },
 } as const;
 
 function lattice() {
