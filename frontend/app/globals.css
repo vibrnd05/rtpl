@@ -2,43 +2,39 @@
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════════════════════════════════
-   RTPL — "Modernist" design system, DARK theme.
-   The ground is a near-black navy and everything is built up from it. Note
-   the one rule that flips when you invert a palette: colour ramps for TEXT
-   now run LIGHTER as the step number rises, not darker. `--color-accent` is
-   still the fill; -600 and -700 are the legible text steps on the navy.
+   RTPL — "Clubhouse" design system, DARK theme.
+   One hue only: a burnt-orange accent for energy and action (CTAs, the live
+   indicator, floodlight warmth). Everything else is black, white or a shade
+   of grey between them — a true neutral ramp, not tinted toward any colour.
+   Where a second signal is needed (last season's trophy, a result that is
+   already decided) it comes from BRIGHTNESS, not a second hue: `--color-ink`
+   at full strength reads as "achieved", `--color-stone` reads as "quiet",
+   against orange's "act now". Colour ramps for TEXT run LIGHTER as the step
+   number rises, not darker: `--color-accent` is the fill; -600 and -700 are
+   the legible text steps on the dark ground.
    Sharp corners (radius 0), 2px rules, Archivo throughout.
    ══════════════════════════════════════════════════════════════════════════ */
 
 @theme {
-  /* The page ground, sampled from the reference build. */
-  --color-paper: #040d22;
+  /* The page ground: a true neutral near-black, not tinted toward any hue,
+     so it reads as structure rather than competing with the accent. */
+  --color-paper: #0a0a09;
   /* One step up: inputs, wells, anything that should read as raised. */
-  --color-surface: #0a1730;
-  --color-ink: #e9eef7;
-  --color-accent: #ff6a12;
+  --color-surface: #121210;
+  --color-ink: #f1f0ed;
+  --color-accent: #ef6a1f;
   /* On this ground the ramp runs LIGHTER as it rises. Orange fills stay
-     --color-accent (6.5:1 against the navy); orange *text* uses -600 at
-     display sizes (7.4:1) and -700 at body sizes (9.0:1). */
-  --color-accent-600: #ff8a3d;
-  --color-accent-700: #ffa668;
-  --color-divider: #1e3252;
-  --color-stone: #8195b3;
+     --color-accent (~6.3:1 against the ground); orange *text* uses -600 at
+     display sizes and -700 at body sizes. */
+  --color-accent-600: #ff8c47;
+  --color-accent-700: #ffb17d;
+  --color-divider: #242320;
+  --color-stone: #8f8c87;
 
-  /* — the match-day palette —
-     Four more hues over the navy: turf green, panel navy, ball leather and
-     floodlight amber. The base step is a FILL; the -700 steps are the ones
-     safe for text on the ground, and like the orange they run lighter, not
-     darker. `--color-night` sits deliberately close to the page ground — it
-     is a panel that lifts by a step, not a slab that fights it. */
-  --color-pitch: #17a55f;
-  --color-pitch-700: #45dc8e;
-  --color-night: #0b1a35;
-  --color-night-600: #14294c;
-  --color-leather: #d02430;
-  --color-leather-700: #ff7078;
-  --color-gold: #ffc02e;
-  --color-gold-700: #ffd97a;
+  /* `--color-night` sits deliberately close to the page ground — it is a
+     panel that lifts by a step, not a slab that fights it. */
+  --color-night: #141412;
+  --color-night-600: #1e1e1a;
 
   --font-sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
   /* Polaroid captions only — a hand against the strip's printed-paper stock. */
@@ -417,24 +413,20 @@
     font-feature-settings: "tnum" 1;
   }
 
-  /* The closing call to action. It used to be a slab of flat orange, which
-     was a light-theme idea: on the navy it read as a different site bolted to
-     the bottom of this one. Now it is the same panel navy as the
-     scoreboard, lifted one step off the page ground and ruled top and
-     bottom, so the page closes in its own language.
-
-     What keeps it from going inert is the light: warm spill entering from the
-     top left and orange rising from the bottom right, the same two sources
-     that light the hero, so the ball at the end of the page is under the same
-     lamps as the headline at the top of it. The diagonal stitching survives
-     from the old band, dropped to a whisper — it is texture now, not pattern.
+  /* The closing call to action: a flat panel, ruled off top and bottom with
+     a plain straight edge rather than cut at an angle. Light enters warm
+     from the top left and orange from the bottom right, the same two
+     sources that light the hero, so the ball at the end of the page is
+     under the same lamps as the headline at the top of it. The diagonal
+     stitching is texture, not pattern.
 
      Loudness comes from the orange chip and button sitting ON this, rather
      than from the surface itself. */
   .cta-band {
     position: relative;
+    isolation: isolate;
     background-color: var(--color-night);
-    border-block: 2px solid var(--color-divider);
+    border-block: 1px solid var(--color-divider);
     background-image:
       repeating-linear-gradient(
         64deg,
@@ -443,7 +435,7 @@
       ),
       radial-gradient(
         58% 130% at 10% -25%,
-        color-mix(in srgb, var(--color-gold) 18%, transparent),
+        color-mix(in srgb, var(--color-ink) 10%, transparent),
         transparent 62%
       ),
       radial-gradient(
@@ -452,6 +444,9 @@
         transparent 60%
       );
     color: var(--color-ink);
+  }
+  .cta-band__inner {
+    padding-block: clamp(36px, 5vw, 64px);
   }
 
   /* — pill label — */
@@ -467,33 +462,35 @@
     line-height: 1.35;
   }
 
-  /* — last season's champions —
-     Stays on the page's own paper ground, the way the hero above it does —
-     it is the night-coloured cards (.champion-banner, .team-card) that
-     supply the contrast. Putting the section itself on a night panel like
-     .cta-band's made the two run together into one dark mass with only a
-     hairline between them; .rule, the system's actual separator, marks the
-     seam instead. */
-  .last-season {
+  /* — last season recap —
+     One table, not a feature card plus a separate list underneath it — the
+     champion no longer appears twice. Stays on the page's own paper ground;
+     a corner wash is enough to mark the section as its own territory
+     without boxing it into a slab. */
+  .recap {
     position: relative;
     isolation: isolate;
+    padding-block: clamp(48px, 6vw, 88px);
   }
-  .last-season::before {
+  .recap::before {
     content: "";
     position: absolute;
     inset: 0;
     z-index: -1;
     pointer-events: none;
     background: radial-gradient(
-        42% 60% at 4% 0%,
-        color-mix(in srgb, var(--color-gold) 9%, transparent),
+        42% 70% at 0% 0%,
+        color-mix(in srgb, var(--color-ink) 6%, transparent),
         transparent 72%
       ),
       radial-gradient(
-        46% 60% at 100% 100%,
+        46% 70% at 100% 100%,
         color-mix(in srgb, var(--color-accent) 7%, transparent),
         transparent 70%
       );
+  }
+  .recap__head {
+    max-width: 56ch;
   }
 
   /* Static, not pinging like .live-dot — this result is already final. */
@@ -501,243 +498,205 @@
     display: inline-block;
     width: 10px;
     height: 10px;
-    background: var(--color-gold);
+    background: var(--color-stone);
     border-radius: 2px;
   }
-  .eyebrow--gold {
-    color: var(--color-gold-700);
+  .eyebrow--muted {
+    color: var(--color-stone);
   }
 
-  /* A gold sweep, same timing as .swipe's orange one. */
-  .swipe--gold {
-    background-image: linear-gradient(var(--color-gold), var(--color-gold));
+  /* — the standings —
+     A plain ranked list, one row each: the champion is picked out by
+     brightness, not a second hue or a separate component — a wider row,
+     a bigger medal with a trophy pin, and the one line of context the rest
+     of the table does not get. */
+  .standings {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    border-top: 1px solid var(--color-divider);
   }
-
-  .champion-banner {
-    position: relative;
-    display: grid;
-    grid-template-columns: auto 1fr;
-    align-items: center;
-    gap: clamp(20px, 4vw, 36px);
-    padding: clamp(22px, 3.6vw, 36px);
-    background: var(--color-night-600);
-    border: 2px solid color-mix(in srgb, var(--color-gold) 45%, var(--color-divider));
-    border-radius: var(--radius-box);
-    overflow: hidden;
-  }
-  /* Diagonal stitching, the same texture as .cta-band, so the two "result"
-     panels on the page read as the same material. */
-  .champion-banner::before {
-    content: "";
-    position: absolute;
-    inset: 0;
-    z-index: 0;
-    pointer-events: none;
-    opacity: 0.6;
-    background-image: repeating-linear-gradient(
-      64deg,
-      color-mix(in srgb, var(--color-gold) 7%, transparent) 0 2px,
-      transparent 2px 15px
-    );
-  }
-  /* A floodlight pool breathing behind the medal, off the tower's own
-     bloom keyframe. */
-  .champion-banner::after {
-    content: "";
-    position: absolute;
-    left: clamp(4px, 2vw, 18px);
-    top: 50%;
-    width: clamp(150px, 20vw, 230px);
-    height: clamp(150px, 20vw, 230px);
-    transform: translateY(-50%);
-    z-index: 0;
-    pointer-events: none;
-    border-radius: 50%;
-    background: radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--color-gold) 32%, transparent),
-      transparent 72%
-    );
-    animation: rtpl-bloom 4.5s ease-in-out infinite alternate;
-  }
-  .champion-banner > * {
-    position: relative;
-    z-index: 1;
-  }
-  .champion-medal {
-    position: relative;
-    width: clamp(104px, 13vw, 148px);
-    height: clamp(104px, 13vw, 148px);
-    flex-shrink: 0;
-    overflow: hidden;
-    background: var(--color-surface);
-    border: 3px solid var(--color-gold);
-    border-radius: 999px;
-    box-shadow:
-      0 0 0 6px color-mix(in srgb, var(--color-gold) 16%, transparent),
-      0 16px 30px rgba(0, 0, 0, 0.5);
-  }
-  .champion-medal__inner {
-    position: absolute;
-    inset: 15%;
-  }
-  .champion-medal__trophy {
-    position: absolute;
-    top: -6px;
-    right: -6px;
-    display: grid;
-    place-items: center;
-    width: 32px;
-    height: 32px;
-    background: var(--color-gold);
-    color: #241a00;
-    border-radius: 999px;
-    border: 2px solid var(--color-night-600);
-    box-shadow: 0 4px 10px rgba(0, 0, 0, 0.45);
-  }
-  .champion-banner__chip {
-    background: var(--color-gold);
-    color: #241a00;
-  }
-  @media (max-width: 480px) {
-    .champion-banner {
-      grid-template-columns: 1fr;
-      justify-items: start;
-    }
-    .champion-banner::after {
-      left: 50%;
-      transform: translate(-50%, -62%);
-    }
-  }
-
-  .teams-grid {
-    display: grid;
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 12px;
-  }
-  @media (min-width: 640px) {
-    .teams-grid {
-      grid-template-columns: repeat(3, minmax(0, 1fr));
-    }
-  }
-  @media (min-width: 1024px) {
-    .teams-grid {
-      grid-template-columns: repeat(5, minmax(0, 1fr));
-    }
-  }
-  .team-card {
+  .standings__row {
     position: relative;
     display: flex;
-    flex-direction: column;
     align-items: center;
-    gap: 4px;
-    padding: 22px 14px 18px;
-    background: var(--color-night-600);
-    border: 2px solid var(--color-divider);
-    border-radius: var(--radius-box);
-    text-align: center;
-    overflow: hidden;
-    transition: border-color 0.18s ease, transform 0.18s ease;
+    gap: clamp(12px, 2.4vw, 20px);
+    padding: 14px 2px;
+    border-bottom: 1px solid var(--color-divider);
   }
-  /* A gold bar sweeps in along the foot, same move as the scoreboard
-     cells' accent sweep, so the two "stats" surfaces answer each other. */
-  .team-card::after {
-    content: "";
-    position: absolute;
-    inset-inline: 0;
-    bottom: 0;
-    height: 3px;
-    background: var(--color-gold);
-    transform: scaleX(0);
-    transform-origin: left;
-    transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
+  .standings__row--champion {
+    padding-block: 20px;
+    background: linear-gradient(
+      90deg,
+      color-mix(in srgb, var(--color-ink) 5%, transparent),
+      transparent 70%
+    );
   }
-  .team-card:hover::after {
-    transform: scaleX(1);
+  .standings__pos {
+    font-family: var(--font-heading);
+    font-weight: 800;
+    font-size: 13px;
+    color: var(--color-stone);
+    width: 1.5em;
+    flex-shrink: 0;
   }
-  .team-card:hover {
-    border-color: color-mix(in srgb, var(--color-gold) 55%, var(--color-divider));
-    transform: translateY(-3px);
+  .standings__row--champion .standings__pos {
+    color: var(--color-ink);
+    font-size: 15px;
   }
-  .team-card--champion {
-    border-color: color-mix(in srgb, var(--color-gold) 55%, var(--color-divider));
-  }
-  .team-card--champion:hover {
-    border-color: var(--color-gold);
-  }
-  .team-card__medal {
+  .standings__medal {
     position: relative;
-    width: clamp(68px, 9vw, 88px);
-    height: clamp(68px, 9vw, 88px);
-    margin-bottom: 8px;
+    width: 40px;
+    height: 40px;
+    border-radius: 999px;
     overflow: hidden;
     background: var(--color-surface);
-    border: 2px solid var(--color-divider);
-    border-radius: 999px;
+    border: 1.5px solid var(--color-divider);
+    flex-shrink: 0;
   }
-  .team-card__medal-inner {
+  .standings__row--champion .standings__medal {
+    width: 60px;
+    height: 60px;
+    border: 2.5px solid var(--color-ink);
+    box-shadow: 0 0 0 5px color-mix(in srgb, var(--color-ink) 12%, transparent);
+  }
+  .standings__medal-inner {
     position: absolute;
     inset: 14%;
   }
-  .team-card--champion .team-card__medal {
-    border-color: var(--color-gold);
-    box-shadow: 0 0 0 4px color-mix(in srgb, var(--color-gold) 16%, transparent);
+  .standings__trophy {
+    position: absolute;
+    bottom: -3px;
+    right: -3px;
+    display: grid;
+    place-items: center;
+    width: 22px;
+    height: 22px;
+    background: var(--color-ink);
+    color: var(--color-paper);
+    border-radius: 999px;
+    border: 2px solid var(--color-paper);
   }
-  .team-card__name {
-    margin: 0;
-    font-size: 13.5px;
+  .standings__info {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    min-width: 0;
+  }
+  .standings__name {
+    font-weight: 700;
+    font-size: 14.5px;
+  }
+  .standings__row--champion .standings__name {
+    font-size: clamp(17px, 2.4vw, 21px);
     font-weight: 800;
-    letter-spacing: 0.01em;
   }
-  .team-card__tag {
-    margin: 0;
+  .standings__note {
+    font-size: 12.5px;
+    color: var(--color-stone);
+  }
+  .standings__tag {
+    margin-left: auto;
+    padding-left: 12px;
     font-size: 10.5px;
     font-weight: 600;
     letter-spacing: 0.07em;
     text-transform: uppercase;
     color: color-mix(in srgb, var(--color-ink) 55%, transparent);
+    flex-shrink: 0;
+    white-space: nowrap;
   }
-  .team-card--champion .team-card__tag {
-    color: var(--color-gold-700);
-  }
-  .team-card__badge {
-    position: absolute;
-    top: 10px;
-    right: 10px;
-    display: inline-flex;
-    align-items: center;
-    gap: 3px;
-    padding: 3px 8px;
-    background: var(--color-gold);
-    color: #241a00;
-    font-size: 10px;
-    font-weight: 800;
-    letter-spacing: 0.05em;
-    text-transform: uppercase;
-    border-radius: 999px;
+  .standings__row--champion .standings__tag {
+    color: var(--color-ink);
+    font-size: 11.5px;
   }
 
-  /* — the hero stage —
-     A night match: two towers off-frame, one warm and one cool, throwing rays
-     that cross over the headline, and a ground that goes dark underfoot where
-     the light does not reach.
-
-     Both layers are pseudo-elements on negative z-indexes; `isolation` keeps
-     them inside this section rather than letting them fall behind the page
-     ground. */
-  .hero-stage {
+  /* — the hero —
+     A cinematic backdrop rather than a two-column layout: the wicket
+     photograph sits large behind the headline as one merged scene, fading
+     under a scrim toward the text rather than stopping at a hard edge next
+     to it. Two towers off-frame, one warm and one cool, throw rays that
+     cross over the headline, and a ground that goes dark underfoot where
+     the light does not reach. The ticker strip below is a sibling, not a
+     child — its own full-bleed bar, not a card floating in the hero. On a
+     phone there is no room for a backdrop and legible text at once, so the
+     photograph drops back into the flow as a plain image under the copy. */
+  .hero {
     position: relative;
     isolation: isolate;
-    /* The gap under the scoreboard belongs to this section, and it has to be
-       padding rather than a margin on the scoreboard itself. Neither .shell
-       nor this element has block padding, a border or a block formatting
-       context, so a bottom margin on the last child collapsed straight out of
-       the section: the hero ended at the scoreboard's edge and the gap below
-       it was bare page ground, which ::after — inset to this box — could not
-       reach. That was the flat navy strip below the hero. */
-    padding-bottom: clamp(56px, 7vw, 104px);
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    min-height: min(88vh, 780px);
   }
-  .hero-stage::before {
+  .hero__backdrop {
+    position: absolute;
+    inset: 0;
+    z-index: -2;
+    pointer-events: none;
+  }
+  .hero__backdrop-img {
+    position: absolute;
+    top: 40%;
+    right: clamp(-40px, -3vw, 0px);
+    transform: translateY(-50%);
+    width: min(58vw, 760px);
+    height: auto;
+  }
+  .hero__scrim {
+    position: absolute;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background:
+      linear-gradient(
+        100deg,
+        var(--color-paper) 0%,
+        var(--color-paper) 40%,
+        color-mix(in srgb, var(--color-paper) 55%, transparent) 62%,
+        color-mix(in srgb, var(--color-paper) 12%, transparent) 100%
+      ),
+      linear-gradient(to top, var(--color-paper) 0%, transparent 40%),
+      linear-gradient(to bottom, var(--color-paper) 0%, transparent 28%);
+  }
+  /* The frame stays centred like every other section's .shell, but the
+     copy inside it is a plain left-aligned block, not a second auto-margined
+     box — nesting .shell inside .shell was quietly re-centring the text in
+     the middle of the hero instead of hanging it off the left edge. */
+  .hero__inner {
+    position: relative;
+    z-index: 1;
+  }
+  .hero__content {
+    max-width: 760px;
+    padding-block: clamp(56px, 8vw, 110px);
+  }
+  @media (max-width: 820px) {
+    .hero {
+      min-height: auto;
+      display: block;
+    }
+    .hero__backdrop {
+      position: static;
+      pointer-events: auto;
+    }
+    .hero__backdrop-img {
+      position: static;
+      transform: none;
+      width: min(420px, 82vw);
+      height: auto;
+      margin: 4px auto 0;
+      display: block;
+    }
+    .hero__scrim {
+      display: none;
+    }
+    .hero__content {
+      max-width: none;
+      padding-block: clamp(48px, 8vw, 80px) 4px;
+    }
+  }
+  .hero::before {
     content: "";
     position: absolute;
     inset: 0;
@@ -762,30 +721,30 @@
          the wedge a soft edge instead of a hard one. */
       radial-gradient(
         300px 250px at var(--flood-x) var(--flood-y),
-        color-mix(in srgb, var(--color-gold) 48%, transparent),
+        color-mix(in srgb, #fff1e0 48%, transparent),
         transparent 80%
       ),
       radial-gradient(
         280px 235px at calc(100% - var(--flood-x)) var(--flood-y),
-        color-mix(in srgb, #dce9ff 42%, transparent),
+        color-mix(in srgb, #ffffff 42%, transparent),
         transparent 80%
       ),
       conic-gradient(
         at var(--flood-x) var(--flood-y),
         transparent 0deg 103deg,
-        color-mix(in srgb, var(--color-gold) 29%, transparent) 112deg,
+        color-mix(in srgb, #fff1e0 29%, transparent) 112deg,
         transparent 121deg 128deg,
-        color-mix(in srgb, var(--color-gold) 20%, transparent) 135deg,
+        color-mix(in srgb, #fff1e0 20%, transparent) 135deg,
         transparent 142deg 150deg,
-        color-mix(in srgb, var(--color-gold) 13%, transparent) 156deg,
+        color-mix(in srgb, #fff1e0 13%, transparent) 156deg,
         transparent 163deg 360deg
       ),
       conic-gradient(
         at calc(100% - var(--flood-x)) var(--flood-y),
         transparent 0deg 199deg,
-        color-mix(in srgb, #dce9ff 25%, transparent) 208deg,
+        color-mix(in srgb, #ffffff 25%, transparent) 208deg,
         transparent 217deg 225deg,
-        color-mix(in srgb, #dce9ff 17%, transparent) 232deg,
+        color-mix(in srgb, #ffffff 17%, transparent) 232deg,
         transparent 240deg 360deg
       );
     /* Light dies out before the section end rather than stopping at an edge. */
@@ -806,7 +765,7 @@
      13.8% down its own 200x660 viewBox, so at 620px tall the centre is 67px
      in from the element's left edge (-24px + 0.482 * 188px) and 86px down.
      Change the height, the offset or the lamp grid and both move. */
-  .hero-stage {
+  .hero {
     --flood-x: 67px;
     --flood-y: 86px;
   }
@@ -842,15 +801,15 @@
   }
 
   /* Dark underfoot. The ground is already near-black, so this reads as a
-     deepening rather than a shadow — enough to seat the scoreboard.
+     deepening rather than a shadow — enough to seat the ticker.
 
      The stops are the point. A straight transparent -> 0.55 ramp reaches full
      strength at the section's edge and then has nowhere left to go, so the
-     margin below the scoreboard came out as a flat slab — the one part of the
-     page with neither the lamps above it nor the band's stripes below. Peaking
+     margin below the hero came out as a flat slab — the one part of the
+     page with neither the lamps above it nor the panel's stripes below. Peaking
      at 74% and easing back keeps the ground graduating right down to the
      section end, and the spill gives it something to graduate towards. */
-  .hero-stage::after {
+  .hero::after {
     content: "";
     position: absolute;
     inset: auto 0 0;
@@ -862,7 +821,7 @@
          lamps' bloom at the top of the section. */
       radial-gradient(
         120% 70% at 50% 108%,
-        color-mix(in srgb, var(--color-gold) 10%, transparent),
+        color-mix(in srgb, var(--color-accent) 10%, transparent),
         transparent 68%
       ),
       linear-gradient(
@@ -873,37 +832,34 @@
       );
   }
 
-  /* — scoreboard —
-     A dark panel of amber figures under the hero: the one place on a light
-     page that reads like a ground's scoreboard rather than a stat card. The
-     2px gaps between cells are the panel background showing through. */
-  .scoreboard {
-    display: grid;
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-    /* Centred and capped rather than stretched across the shell: three
-       cells over the full width made each box far wider than the two or
-       three characters it holds. 850px puts a cell back at roughly the
-       width it had when there were four of them. */
-    max-width: 850px;
-    margin-inline: auto;
-    gap: 2px;
-    background: var(--color-night-600);
-    border: 2px solid var(--color-divider);
-    border-radius: var(--radius-box);
-    overflow: hidden;
-  }
-  .scoreboard-cell {
+  /* — the ticker —
+     A full-bleed stat strip, edge to edge with hairline rules between cells
+     rather than a rounded card floating in the hero's padding — closer to a
+     ground's own scoreboard bolted under the stand than a stat widget. */
+  .ticker {
     position: relative;
-    overflow: hidden;
+    display: flex;
+    flex-wrap: wrap;
+    border-top: 1px solid var(--color-divider);
+    border-bottom: 1px solid var(--color-divider);
     background: var(--color-night);
-    padding: 16px clamp(14px, 2vw, 22px) 15px;
+  }
+  .ticker__item {
+    position: relative;
+    flex: 1 1 160px;
+    overflow: hidden;
+    padding: 18px clamp(20px, 5vw, 56px);
+    border-right: 1px solid var(--color-divider);
     transition: background-color 0.2s ease;
   }
-  .scoreboard-cell:hover {
+  .ticker__item:last-child {
+    border-right: none;
+  }
+  .ticker__item:hover {
     background: var(--color-night-600);
   }
   /* An amber bar sweeps in along the foot of the cell you point at. */
-  .scoreboard-cell::after {
+  .ticker__item::after {
     content: "";
     position: absolute;
     inset-inline: 0;
@@ -914,29 +870,22 @@
     transform-origin: left;
     transition: transform 0.28s cubic-bezier(0.2, 0.7, 0.2, 1);
   }
-  .scoreboard-cell:hover::after {
+  .ticker__item:hover::after {
     transform: scaleX(1);
   }
-  .scoreboard-value {
+  .ticker__value {
     display: block;
     font-family: var(--font-heading);
     font-weight: 800;
-    font-size: clamp(30px, 4.4vw, 42px);
+    font-size: clamp(28px, 3.6vw, 38px);
     line-height: 1;
     letter-spacing: -0.03em;
     color: var(--color-accent);
-    text-shadow: 0 0 22px color-mix(in srgb, var(--color-accent) 45%, transparent);
+    text-shadow: 0 0 22px color-mix(in srgb, var(--color-accent) 42%, transparent);
   }
-  .scoreboard-unit {
-    font-size: 0.42em;
-    font-weight: 800;
-    letter-spacing: 0.06em;
-    margin-left: 3px;
-    color: color-mix(in srgb, var(--color-accent) 72%, transparent);
-  }
-  .scoreboard-label {
+  .ticker__label {
     display: block;
-    margin-top: 9px;
+    margin-top: 8px;
     font-size: 11px;
     font-weight: 600;
     letter-spacing: 0.14em;
@@ -1163,47 +1112,63 @@
     }
   }
 
-  /* — glimpses strip —
+  /* — glimpses collage —
      Prints rather than thumbnails: white stock, a thumb's-width border and a
-     caption in a hand, laid out like photos actually pinned to a board rather
-     than tiles in a grid. The scrapbook feel is what tells it apart from the
-     gallery grid above — that one is for browsing, this one is for a glance. */
-  .glimpses-strip {
-    display: flex;
-    gap: clamp(16px, 3vw, 28px);
-    overflow-x: auto;
-    padding-block: 10px 6px;
-    padding-inline: 2px;
-    scroll-snap-type: x proximity;
-    scrollbar-width: none;
+     caption in a hand, laid out like photos actually pinned to a board — one
+     held up large, the rest scattered round it — rather than a uniform strip
+     of same-sized tiles. That asymmetry is what tells it apart from the
+     gallery grid above, which is for browsing; this is for a glance. */
+  .collage {
+    display: grid;
+    grid-template-columns: repeat(12, minmax(0, 1fr));
+    gap: clamp(10px, 1.8vw, 20px);
   }
-  .glimpses-strip::-webkit-scrollbar {
-    display: none;
+  .collage__item:nth-child(1) {
+    grid-column: span 7;
+  }
+  .collage__item:nth-child(2) {
+    grid-column: span 5;
+  }
+  .collage__item:nth-child(3),
+  .collage__item:nth-child(4),
+  .collage__item:nth-child(5) {
+    grid-column: span 4;
+  }
+  @media (max-width: 720px) {
+    .collage {
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+    }
+    .collage__item:nth-child(1),
+    .collage__item:nth-child(2) {
+      grid-column: span 2;
+    }
+    .collage__item:nth-child(3),
+    .collage__item:nth-child(4),
+    .collage__item:nth-child(5) {
+      grid-column: span 1;
+    }
   }
   .polaroid {
-    flex: 0 0 auto;
-    width: clamp(168px, 20vw, 230px);
     margin: 0;
-    padding: 10px 10px 18px;
+    padding: 10px 10px 16px;
     background: #f4efe4;
     border-radius: 2px;
     box-shadow: 0 14px 26px rgba(0, 0, 0, 0.4);
-    scroll-snap-align: start;
-    transform: rotate(var(--polaroid-tilt, -3deg));
+    transform: rotate(var(--polaroid-tilt, 0deg));
     transition: transform 0.2s ease;
   }
   .polaroid--left {
-    --polaroid-tilt: -3.5deg;
+    --polaroid-tilt: -2.2deg;
   }
   .polaroid--right {
-    --polaroid-tilt: 3deg;
+    --polaroid-tilt: 2deg;
   }
   .polaroid:hover {
     transform: rotate(0deg) translateY(-4px);
   }
   .polaroid__photo {
     position: relative;
-    aspect-ratio: 1 / 1;
+    aspect-ratio: var(--polaroid-ratio, 1 / 1);
     background: #0a0a0a;
     overflow: hidden;
   }
@@ -1321,6 +1286,14 @@
     margin-inline: -0.06em;
     animation: rtpl-swipe 0.85s cubic-bezier(0.2, 0.7, 0.2, 1) 0.5s forwards;
   }
+  /* A green sweep, same timing as .swipe's orange one. Lives in this layer
+     (not .components) and after .swipe in source order on purpose — Tailwind
+     v4's layer order always lets `utilities` beat `components` regardless of
+     where a rule sits in the file, so a modifier meant to override .swipe
+     has to live here to actually win. */
+  .swipe--light {
+    background-image: linear-gradient(var(--color-ink), var(--color-ink));
+  }
 
   /* A shine that crosses the button once per hover. */
   .btn-shine {
@@ -1347,24 +1320,6 @@
     animation: rtpl-shine 0.75s ease-out;
   }
 
-  /* Floodlight glow behind the hero mark. */
-  .mark-glow {
-    position: relative;
-    isolation: isolate;
-  }
-  .mark-glow::before {
-    content: "";
-    position: absolute;
-    inset: 8% 4%;
-    z-index: -1;
-    border-radius: 50%;
-    background: radial-gradient(
-      closest-side,
-      color-mix(in srgb, var(--color-gold) 22%, transparent),
-      transparent
-    );
-    animation: rtpl-bloom 5.5s ease-in-out infinite alternate;
-  }
   @media (prefers-reduced-motion: reduce) {
     .rise,
     .ball-float,
@@ -1374,8 +1329,8 @@
     .ball-seam,
     .floodlight,
     .live-dot::after,
-    .mark-glow::before,
-    .hero-stage::before,
+    .hero__art::before,
+    .hero::before,
     .swipe {
       animation: none;
     }

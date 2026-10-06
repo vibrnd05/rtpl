@@ -6,6 +6,10 @@ type Polaroid = {
   alt: string;
   caption: string;
   rotate: "left" | "right";
+  /** CSS aspect-ratio for the print — the two featured frames run wide,
+      the rest are square. */
+  ratio: string;
+  sizes: string;
 };
 
 /** A handful of prints from last season, not the full set — that lives at /gallery. */
@@ -15,46 +19,54 @@ const PHOTOS: Polaroid[] = [
     alt: "The RTPL 7.0 trophy revealed on launch night",
     caption: "Launch night",
     rotate: "left",
+    ratio: "6 / 5",
+    sizes: "(min-width: 720px) 58vw, 100vw",
   },
   {
     src: "/gallery/day-1/TRK08154.JPG",
     alt: "A batter mid-shot on Day 1",
     caption: "Day 1, mid-over",
     rotate: "right",
+    ratio: "6 / 5",
+    sizes: "(min-width: 720px) 42vw, 100vw",
   },
   {
     src: "/gallery/day-1/TRK08216.JPG",
     alt: "A player walking out to bat",
     caption: "Game face on",
     rotate: "left",
+    ratio: "1 / 1",
+    sizes: "(min-width: 720px) 32vw, 48vw",
   },
   {
     src: "/gallery/day-2/TRK09506.JPG",
     alt: "A chapter side walking off the field together",
     caption: "The squad",
     rotate: "right",
+    ratio: "1 / 1",
+    sizes: "(min-width: 720px) 32vw, 48vw",
   },
   {
     src: "/gallery/launch/TRK07630.JPG",
     alt: "Two chapter members at the launch party",
     caption: "Launch party",
     rotate: "left",
+    ratio: "1 / 1",
+    sizes: "(min-width: 720px) 32vw, 48vw",
   },
 ];
 
 /**
- * A scrapbook strip of prints from Season 7, dropped between the final table
- * and the CTA — this season's result is already written above it, so this is
- * what it looked like getting there. The full set lives at /gallery; this is
- * a taste of it, not a second copy.
+ * A scrapbook collage of prints from Season 7, dropped between the final
+ * table and the CTA — this season's result is already written above it, so
+ * this is what it looked like getting there. One frame held up large, the
+ * rest scattered round it, the way photos actually end up pinned to a board
+ * rather than lined up in a uniform strip. The full set lives at /gallery;
+ * this is a taste of it, not a second copy.
  */
 export function GlimpsesStrip() {
   return (
     <section className="glimpses" data-reveal-group>
-      <div className="shell">
-        <hr className="rule" />
-      </div>
-
       <div className="shell py-[clamp(44px,6vw,80px)]">
         <div className="flex flex-wrap items-end justify-between gap-5">
           <div>
@@ -79,18 +91,21 @@ export function GlimpsesStrip() {
           </Link>
         </div>
 
-        <div className="glimpses-strip mt-10" data-reveal>
+        <div className="collage mt-10" data-reveal>
           {PHOTOS.map((photo) => (
             <figure
               key={photo.src}
-              className={`polaroid polaroid--${photo.rotate}`}
+              className={`collage__item polaroid polaroid--${photo.rotate}`}
             >
-              <div className="polaroid__photo">
+              <div
+                className="polaroid__photo"
+                style={{ "--polaroid-ratio": photo.ratio } as React.CSSProperties}
+              >
                 <Image
                   src={photo.src}
                   alt={photo.alt}
                   fill
-                  sizes="(min-width: 1024px) 230px, (min-width: 640px) 220px, 72vw"
+                  sizes={photo.sizes}
                   className="object-cover"
                 />
               </div>

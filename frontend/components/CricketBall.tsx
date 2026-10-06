@@ -24,9 +24,9 @@ export function CricketBall({ className = "" }: { className?: string }) {
 
         {/* Bounce light off the ground, tinted with the league orange */}
         <radialGradient id="rtpl-bounce" cx="74%" cy="84%" r="46%">
-          <stop offset="0%" stopColor="#ff8a3d" stopOpacity="0.42" />
-          <stop offset="60%" stopColor="#ff8a3d" stopOpacity="0.08" />
-          <stop offset="100%" stopColor="#ff8a3d" stopOpacity="0" />
+          <stop offset="0%" stopColor="#ff8c47" stopOpacity="0.42" />
+          <stop offset="60%" stopColor="#ff8c47" stopOpacity="0.08" />
+          <stop offset="100%" stopColor="#ff8c47" stopOpacity="0" />
         </radialGradient>
 
         {/* Rim darkening, so the sphere turns away at the edges */}
@@ -117,7 +117,7 @@ export function BallMark({ className = "" }: { className?: string }) {
       aria-hidden="true"
       focusable="false"
     >
-      <circle cx="12" cy="12" r="11" fill="var(--color-leather)" />
+      <circle cx="12" cy="12" r="11" fill="var(--color-accent)" />
       <path
         d="M12 1a11 11 0 0 0 0 22"
         fill="none"

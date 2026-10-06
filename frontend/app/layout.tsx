@@ -19,11 +19,12 @@ export const metadata: Metadata = {
   },
 };
 
-/* Paints the mobile browser's own chrome the same navy as the page ground,
-   so the address bar does not sit on the design as a light band. Kept in step
-   with --color-paper in globals.css by hand — Next needs a literal here. */
+/* Paints the mobile browser's own chrome the same near-black as the page
+   ground, so the address bar does not sit on the design as a light band.
+   Kept in step with --color-paper in globals.css by hand — Next needs a
+   literal here. */
 export const viewport: Viewport = {
-  themeColor: "#040d22",
+  themeColor: "#070b09",
 };
 
 export default function RootLayout({
