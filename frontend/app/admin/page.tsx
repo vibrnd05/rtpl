@@ -35,13 +35,17 @@ const OWNER_COLUMNS = [
 const PLAYER_COLUMNS = [
   "Reference",
   "Name",
+  "City",
   "Team",
+  "Last year",
+  "Membership",
   "Mobile",
   "Email",
   "DOB",
   "Role",
+  "Batting",
+  "Bowling",
   "T-shirt",
-  "Table no.",
   "Status",
   "Submitted",
 ];
@@ -91,13 +95,17 @@ function PlayerRow({ entry }: { entry: Player }) {
         {entry.reference}
       </td>
       <td className="min-w-[160px] font-semibold">{entry.fullName}</td>
+      <td>{entry.city}</td>
       <td>{entry.team}</td>
+      <td>{entry.lastYearTeam}</td>
+      <td>{entry.membershipType}</td>
       <td className="tnum whitespace-nowrap">{entry.mobile}</td>
       <td className="min-w-[180px] text-ink/80">{entry.email}</td>
       <td className="tnum whitespace-nowrap">{formatDay(entry.dateOfBirth)}</td>
       <td>{entry.playingRole}</td>
+      <td>{entry.battingStyle}</td>
+      <td>{entry.bowlingStyle}</td>
       <td>{entry.tShirtSize}</td>
-      <td>{entry.tableNumber || "—"}</td>
       <td className="capitalize">{entry.status}</td>
       <td className="tnum whitespace-nowrap text-ink/70">
         {formatDate(entry.createdAt)}

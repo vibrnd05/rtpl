@@ -3,11 +3,11 @@ import { SiteHeader } from "@/components/SiteHeader";
 import { SiteFooter } from "@/components/SiteFooter";
 import { GalleryGrid } from "@/components/GalleryGrid";
 import { getGallerySections } from "@/lib/gallery";
-import { LEAGUE } from "@/lib/league";
 
 export const metadata: Metadata = {
-  title: `Photo gallery - RTPL Season ${LEAGUE.season}`,
-  description: `Photos from launch day and both match days of the Round Table Premier League Season ${LEAGUE.season}.`,
+  title: "Glimpses from RTPL 7.0",
+  description:
+    "Photos from launch day and both match days of the Round Table Premier League Season 7.",
 };
 
 export default function GalleryPage() {
@@ -23,7 +23,7 @@ export default function GalleryPage() {
             className="ml-[-0.058em] text-[clamp(38px,5.6vw,68px)] font-extrabold leading-[1.04] tracking-[-0.03em]"
             data-reveal
           >
-            Photo gallery
+            Glimpses from RTPL 7.0
           </h1>
           <p
             className="mt-4 max-w-[52ch] text-[15.5px] leading-[1.65] text-ink/75"

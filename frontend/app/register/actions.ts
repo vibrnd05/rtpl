@@ -30,10 +30,14 @@ export async function registerPlayer(
     mobile: str(formData, "mobile"),
     email: str(formData, "email"),
     dateOfBirth: str(formData, "dateOfBirth"),
+    city: str(formData, "city"),
     team: str(formData, "team"),
+    lastYearTeam: str(formData, "lastYearTeam"),
+    membershipType: str(formData, "membershipType"),
     playingRole: str(formData, "playingRole"),
     tShirtSize: str(formData, "tShirtSize"),
-    tableNumber: str(formData, "tableNumber"),
+    battingStyle: str(formData, "battingStyle"),
+    bowlingStyle: str(formData, "bowlingStyle"),
   };
 
   // Honeypot — bots fill every field, players never see this one.

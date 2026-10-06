@@ -1,4 +1,4 @@
-@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&display=swap");
+@import url("https://fonts.googleapis.com/css2?family=Archivo:wght@400;600;800&family=Caveat:wght@600&display=swap");
 @import "tailwindcss";
 
 /* ══════════════════════════════════════════════════════════════════════════
@@ -41,6 +41,8 @@
   --color-gold-700: #ffd97a;
 
   --font-sans: "Archivo", system-ui, -apple-system, "Segoe UI", sans-serif;
+  /* Polaroid captions only — a hand against the strip's printed-paper stock. */
+  --font-caption: "Caveat", "Archivo", cursive;
 
   /* Boxes are softened slightly; `rounded-box` uses this token. */
   --radius-box: 6px;
@@ -1158,6 +1160,67 @@
     .lightbox__caption {
       bottom: auto;
       top: calc(100% - 46px);
+    }
+  }
+
+  /* — glimpses strip —
+     Prints rather than thumbnails: white stock, a thumb's-width border and a
+     caption in a hand, laid out like photos actually pinned to a board rather
+     than tiles in a grid. The scrapbook feel is what tells it apart from the
+     gallery grid above — that one is for browsing, this one is for a glance. */
+  .glimpses-strip {
+    display: flex;
+    gap: clamp(16px, 3vw, 28px);
+    overflow-x: auto;
+    padding-block: 10px 6px;
+    padding-inline: 2px;
+    scroll-snap-type: x proximity;
+    scrollbar-width: none;
+  }
+  .glimpses-strip::-webkit-scrollbar {
+    display: none;
+  }
+  .polaroid {
+    flex: 0 0 auto;
+    width: clamp(168px, 20vw, 230px);
+    margin: 0;
+    padding: 10px 10px 18px;
+    background: #f4efe4;
+    border-radius: 2px;
+    box-shadow: 0 14px 26px rgba(0, 0, 0, 0.4);
+    scroll-snap-align: start;
+    transform: rotate(var(--polaroid-tilt, -3deg));
+    transition: transform 0.2s ease;
+  }
+  .polaroid--left {
+    --polaroid-tilt: -3.5deg;
+  }
+  .polaroid--right {
+    --polaroid-tilt: 3deg;
+  }
+  .polaroid:hover {
+    transform: rotate(0deg) translateY(-4px);
+  }
+  .polaroid__photo {
+    position: relative;
+    aspect-ratio: 1 / 1;
+    background: #0a0a0a;
+    overflow: hidden;
+  }
+  .polaroid__caption {
+    display: block;
+    margin-top: 10px;
+    padding-inline: 2px;
+    font-family: var(--font-caption);
+    font-size: 19px;
+    font-weight: 600;
+    line-height: 1;
+    color: #241f16;
+    text-align: center;
+  }
+  @media (prefers-reduced-motion: reduce) {
+    .polaroid {
+      transition: none;
     }
   }
 }

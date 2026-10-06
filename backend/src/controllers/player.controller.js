@@ -11,10 +11,14 @@ export const createPlayer = async (req, res) => {
     mobile,
     email,
     dateOfBirth,
+    city,
     team,
+    lastYearTeam,
+    membershipType,
     playingRole,
     tShirtSize,
-    tableNumber,
+    battingStyle,
+    bowlingStyle,
   } = req.body;
 
   const entry = {
@@ -22,10 +26,14 @@ export const createPlayer = async (req, res) => {
     mobile,
     email,
     dateOfBirth,
+    city,
     team,
+    lastYearTeam,
+    membershipType,
     playingRole,
     tShirtSize,
-    tableNumber,
+    battingStyle,
+    bowlingStyle,
   };
 
   for (let attempt = 0; attempt < 5; attempt++) {

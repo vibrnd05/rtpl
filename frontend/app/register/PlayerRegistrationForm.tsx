@@ -4,7 +4,13 @@ import Link from "next/link";
 import { useActionState, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { registerPlayer, type FormState } from "./actions";
-import { PLAYING_ROLES, T_SHIRT_SIZES } from "@/lib/players";
+import {
+  PLAYING_ROLES,
+  T_SHIRT_SIZES,
+  MEMBERSHIP_TYPES,
+  BATTING_STYLES,
+  BOWLING_STYLES,
+} from "@/lib/players";
 import { LEAGUE } from "@/lib/league";
 
 // Defined here, not in actions.ts: a "use server" module may only export
@@ -131,10 +137,14 @@ export function PlayerRegistrationForm({ teams }: { teams: string[] }) {
     mobile: "",
     email: "",
     dateOfBirth: "",
+    city: "",
     team: "",
+    lastYearTeam: "",
+    membershipType: "",
     playingRole: "",
     tShirtSize: "",
-    tableNumber: "",
+    battingStyle: "",
+    bowlingStyle: "",
   });
 
   const set =
@@ -267,6 +277,19 @@ export function PlayerRegistrationForm({ teams }: { teams: string[] }) {
                 aria-invalid={Boolean(err.dateOfBirth)}
               />
             </Question>
+
+            <Question label="City" required htmlFor="city" error={err.city}>
+              <input
+                className="input"
+                id="city"
+                name="city"
+                type="text"
+                maxLength={80}
+                value={values.city}
+                onChange={set("city")}
+                aria-invalid={Boolean(err.city)}
+              />
+            </Question>
           </div>
         </SectionHeading>
       </section>
@@ -301,6 +324,39 @@ export function PlayerRegistrationForm({ teams }: { teams: string[] }) {
                 ))}
               </select>
             </Question>
+
+            <Question
+              label="Last year's team"
+              hint="If you didn't play last season, write Uncapped."
+              required
+              htmlFor="lastYearTeam"
+              error={err.lastYearTeam}
+            >
+              <input
+                className="input"
+                id="lastYearTeam"
+                name="lastYearTeam"
+                type="text"
+                maxLength={80}
+                value={values.lastYearTeam}
+                onChange={set("lastYearTeam")}
+                aria-invalid={Boolean(err.lastYearTeam)}
+              />
+            </Question>
+
+            <Question
+              label="Tabler / 41er"
+              required
+              error={err.membershipType}
+            >
+              <Choice
+                name="membershipType"
+                options={MEMBERSHIP_TYPES}
+                value={values.membershipType}
+                onChange={pick("membershipType")}
+                invalid={Boolean(err.membershipType)}
+              />
+            </Question>
           </div>
         </SectionHeading>
       </section>
@@ -311,20 +367,6 @@ export function PlayerRegistrationForm({ teams }: { teams: string[] }) {
       <section className="pt-[clamp(36px,4vw,56px)]">
         <SectionHeading index="03" title="Kit & role">
           <div className="grid gap-7">
-            <Question
-              label="Playing role"
-              required
-              error={err.playingRole}
-            >
-              <Choice
-                name="playingRole"
-                options={PLAYING_ROLES}
-                value={values.playingRole}
-                onChange={pick("playingRole")}
-                invalid={Boolean(err.playingRole)}
-              />
-            </Question>
-
             <Question
               label="T-shirt size"
               required
@@ -340,20 +382,45 @@ export function PlayerRegistrationForm({ teams }: { teams: string[] }) {
             </Question>
 
             <Question
-              label="Round Table table number"
-              hint="If you're a Round Table member. Leave blank otherwise."
-              htmlFor="tableNumber"
-              error={err.tableNumber}
+              label="Define your quality as a player"
+              hint="E.g. batsman, bowler, all-rounder or wicketkeeper."
+              required
+              error={err.playingRole}
             >
-              <input
-                className="input"
-                id="tableNumber"
-                name="tableNumber"
-                type="text"
-                maxLength={40}
-                value={values.tableNumber}
-                onChange={set("tableNumber")}
-                aria-invalid={Boolean(err.tableNumber)}
+              <Choice
+                name="playingRole"
+                options={PLAYING_ROLES}
+                value={values.playingRole}
+                onChange={pick("playingRole")}
+                invalid={Boolean(err.playingRole)}
+              />
+            </Question>
+
+            <Question
+              label="Type of batsman"
+              required
+              error={err.battingStyle}
+            >
+              <Choice
+                name="battingStyle"
+                options={BATTING_STYLES}
+                value={values.battingStyle}
+                onChange={pick("battingStyle")}
+                invalid={Boolean(err.battingStyle)}
+              />
+            </Question>
+
+            <Question
+              label="Type of bowler"
+              required
+              error={err.bowlingStyle}
+            >
+              <Choice
+                name="bowlingStyle"
+                options={BOWLING_STYLES}
+                value={values.bowlingStyle}
+                onChange={pick("bowlingStyle")}
+                invalid={Boolean(err.bowlingStyle)}
               />
             </Question>
           </div>

@@ -100,10 +100,14 @@ export type PlayerPayload = {
   mobile: string;
   email: string;
   dateOfBirth: string;
+  city: string;
   team: string;
+  lastYearTeam: string;
+  membershipType: string;
   playingRole: string;
   tShirtSize: string;
-  tableNumber: string;
+  battingStyle: string;
+  bowlingStyle: string;
 };
 
 export type PlayerReceipt = {
@@ -169,10 +173,14 @@ export type Player = {
   mobile: string;
   email: string;
   dateOfBirth: string;
+  city: string;
   team: string;
+  lastYearTeam: string;
+  membershipType: string;
   playingRole: string;
   tShirtSize: string;
-  tableNumber: string;
+  battingStyle: string;
+  bowlingStyle: string;
   status: string;
   createdAt: string;
   updatedAt: string;

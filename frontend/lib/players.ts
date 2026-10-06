@@ -13,3 +13,9 @@ export const PLAYING_ROLES = [
 ] as const;
 
 export const T_SHIRT_SIZES = ["S", "M", "L", "XL", "XXL", "XXXL"] as const;
+
+export const MEMBERSHIP_TYPES = ["Tabler", "41er"] as const;
+
+export const BATTING_STYLES = ["Right-handed", "Left-handed"] as const;
+
+export const BOWLING_STYLES = ["Pace", "Spin", "Does not bowl"] as const;

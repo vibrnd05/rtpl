@@ -6,6 +6,7 @@ import { CountUp } from "@/components/CountUp";
 import { DaysUntil } from "@/components/DaysUntil";
 import { FloodlightTower } from "@/components/FloodlightTower";
 import { LastSeason } from "@/components/LastSeason";
+import { GlimpsesStrip } from "@/components/GlimpsesStrip";
 import { getLastSeasonTeams } from "@/lib/teams";
 import { LEAGUE } from "@/lib/league";
 
@@ -120,6 +121,8 @@ export default function Home() {
         <LastSeason teams={lastSeasonTeams} season={LEAGUE.season - 1} />
       )}
 
+      <GlimpsesStrip />
+
       {/* Closing call to action */}
       <section className="cta-band">
         <div className="shell py-[clamp(52px,7vw,92px)]">
@@ -133,7 +136,7 @@ export default function Home() {
                 className="ml-[-0.058em] mt-5 text-[clamp(31px,6vw,60px)] font-extrabold leading-[1.05] tracking-tight"
                 data-reveal
               >
-                <span className="block text-accent-600">Own a team.</span>
+                <span className="block text-accent-600">Pick up a bat.</span>
                 <span className="block">Take the field.</span>
               </h2>
 

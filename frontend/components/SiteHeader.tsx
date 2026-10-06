@@ -1,7 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { ScrollProgress } from "./ScrollProgress";
-import { AdminMenu } from "./AdminMenu";
+import { MobileMenu } from "./MobileMenu";
 
 /**
  * The wordmark is artwork rather than type. Its letterforms are near-black,
@@ -32,7 +32,7 @@ function Wordmark() {
 }
 
 /**
- * `league` — wordmark, the admin login link and the register CTA (landing page).
+ * `league` — wordmark, the Glimpses link and the register CTA (landing page).
  * `back`   — wordmark plus a single return link (registration page).
  *
  * There is no section nav: the links it held (League, Schedule, Teams, Venue,
@@ -54,26 +54,20 @@ export function SiteHeader({
 
         {variant === "league" ? (
           <div className="flex shrink-0 items-center gap-2 md:gap-2.5">
-            {/* From md up the admin link is a button of its own, ahead of the
-                CTA. Below that it is the menu at the end of the bar instead. */}
+            {/* From md up Glimpses is a link of its own, ahead of the CTA.
+                Below that it is the menu at the end of the bar instead. */}
             <Link
               href="/gallery"
               className="hidden shrink-0 text-[13px] font-semibold uppercase tracking-[0.08em] text-ink transition-colors hover:text-accent-700 md:inline-flex"
             >
-              Gallery
-            </Link>
-            <Link
-              href="/admin/login"
-              className="btn btn-secondary hidden md:inline-flex"
-            >
-              Admin login
+              Glimpses
             </Link>
             <Link href="/register" className="btn btn-primary">
               {/* The bar is 120px narrower than the label needs on a phone. */}
               <span className="md:hidden">Register</span>
               <span className="hidden md:inline">Register now</span>
             </Link>
-            <AdminMenu />
+            <MobileMenu />
           </div>
         ) : (
           <Link

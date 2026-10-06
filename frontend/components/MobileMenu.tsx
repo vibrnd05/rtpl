@@ -17,16 +17,16 @@ function MenuIcon() {
 }
 
 /**
- * The admin link on a phone, where it sits at the far right of the bar — past
- * the register CTA, which is the bar's one job here and keeps both its orange
- * and its place in the reading order.
+ * The Glimpses link on a phone, where it sits at the far right of the bar —
+ * past the register CTA, which is the bar's one job here and keeps both its
+ * orange and its place in the reading order.
  *
  * <details> carries the open state, so the menu still works if the JavaScript
  * below never runs; all that handler adds is dismissal — a tap outside or the
  * Escape key. The panel hangs off the trigger's right edge, so being hard
  * against the screen edge opens it inwards.
  */
-export function AdminMenu() {
+export function MobileMenu() {
   const menu = useRef<HTMLDetailsElement>(null);
 
   useEffect(() => {
@@ -57,10 +57,7 @@ export function AdminMenu() {
       </summary>
       <div className="nav-menu__panel">
         <Link href="/gallery" className="nav-menu__item">
-          Gallery
-        </Link>
-        <Link href="/admin/login" className="nav-menu__item">
-          Admin login
+          Glimpses
         </Link>
       </div>
     </details>
