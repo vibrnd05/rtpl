@@ -101,7 +101,6 @@ export type PlayerPayload = {
   email: string;
   dateOfBirth: string;
   city: string;
-  team: string;
   lastYearTeam: string;
   membershipType: string;
   playingRole: string;
@@ -114,7 +113,6 @@ export type PlayerReceipt = {
   player: {
     reference: string;
     fullName: string;
-    team: string;
     status: string;
     createdAt: string;
   };
@@ -174,7 +172,6 @@ export type Player = {
   email: string;
   dateOfBirth: string;
   city: string;
-  team: string;
   lastYearTeam: string;
   membershipType: string;
   playingRole: string;

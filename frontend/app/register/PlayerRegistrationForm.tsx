@@ -128,7 +128,7 @@ function SubmitButton() {
   );
 }
 
-export function PlayerRegistrationForm({ teams }: { teams: string[] }) {
+export function PlayerRegistrationForm() {
   const [state, formAction] = useActionState(registerPlayer, initialState);
 
   // Controlled so nothing is lost when a failed submission re-renders the form.
@@ -138,7 +138,6 @@ export function PlayerRegistrationForm({ teams }: { teams: string[] }) {
     email: "",
     dateOfBirth: "",
     city: "",
-    team: "",
     lastYearTeam: "",
     membershipType: "",
     playingRole: "",
@@ -300,31 +299,6 @@ export function PlayerRegistrationForm({ teams }: { teams: string[] }) {
       <section className="pt-[clamp(36px,4vw,56px)]">
         <SectionHeading index="02" title="The team">
           <div className="grid gap-6">
-            <Question
-              label="Which chapter side are you playing for?"
-              required
-              htmlFor="team"
-              error={err.team}
-            >
-              <select
-                className="input"
-                id="team"
-                name="team"
-                value={values.team}
-                onChange={set("team")}
-                aria-invalid={Boolean(err.team)}
-              >
-                <option value="" disabled>
-                  Select a team
-                </option>
-                {teams.map((team) => (
-                  <option key={team} value={team}>
-                    {team}
-                  </option>
-                ))}
-              </select>
-            </Question>
-
             <Question
               label="Last year's team"
               hint="If you didn't play last season, write Uncapped."

@@ -31,7 +31,6 @@ export async function registerPlayer(
     email: str(formData, "email"),
     dateOfBirth: str(formData, "dateOfBirth"),
     city: str(formData, "city"),
-    team: str(formData, "team"),
     lastYearTeam: str(formData, "lastYearTeam"),
     membershipType: str(formData, "membershipType"),
     playingRole: str(formData, "playingRole"),

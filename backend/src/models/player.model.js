@@ -1,20 +1,5 @@
 import mongoose from "mongoose";
 
-/**
- * The five chapter sides a player can register under. Mirrored by hand in
- * frontend/lib/teams.ts (derived there from the logo filenames in
- * frontend/public/teams) — same duplication the YES_NO enums below already
- * use between this file and frontend/lib/registration.ts. Keep the two lists
- * in step if a side is ever renamed.
- */
-export const TEAMS = [
-  "Eastern Legends",
-  "Gully Boys",
-  "Master Blasters",
-  "Super Warrior",
-  "Toofani Panther",
-];
-
 export const PLAYING_ROLES = ["Batsman", "Bowler", "All-rounder", "Wicketkeeper"];
 
 export const T_SHIRT_SIZES = ["S", "M", "L", "XL", "XXL", "XXXL"];
@@ -69,12 +54,6 @@ const playerSchema = new mongoose.Schema(
       required: [true, "A city is required."],
       trim: true,
       maxlength: [80, "Please keep this under 80 characters."],
-    },
-
-    team: {
-      type: String,
-      required: [true, "Please select a team."],
-      enum: { values: TEAMS, message: "Please select a valid team." },
     },
 
     /** Free text rather than an enum: "Uncapped" is as valid an answer as

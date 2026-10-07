@@ -1,7 +1,6 @@
 import type { Metadata } from "next";
 import { SiteHeader } from "@/components/SiteHeader";
 import { PlayerRegistrationForm } from "./PlayerRegistrationForm";
-import { getLastSeasonTeams } from "@/lib/teams";
 import { LEAGUE } from "@/lib/league";
 
 export const metadata: Metadata = {
@@ -10,8 +9,6 @@ export const metadata: Metadata = {
 };
 
 export default function RegisterPage() {
-  const teams = getLastSeasonTeams().map((team) => team.name);
-
   return (
     <>
       <SiteHeader variant="back" />
@@ -28,14 +25,14 @@ export default function RegisterPage() {
             className="mt-4 max-w-[52ch] text-[15.5px] leading-[1.65] text-ink/75"
             data-reveal
           >
-            Sign up to play Season {LEAGUE.season} under one of the five
-            chapter sides.
+            Sign up to play Season {LEAGUE.season}. Teams are decided at the
+            auction, not at registration.
           </p>
         </section>
 
         <hr className="rule" />
 
-        <PlayerRegistrationForm teams={teams} />
+        <PlayerRegistrationForm />
       </div>
 
       <div className="shell-narrow">

@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
 import { redirect } from "next/navigation";
 import { SiteHeader } from "@/components/SiteHeader";
+import { DownloadExcelButton } from "@/components/DownloadExcelButton";
 import { getAdminToken } from "@/lib/adminSession";
 import {
   listRegistrations,
@@ -36,7 +37,6 @@ const PLAYER_COLUMNS = [
   "Reference",
   "Name",
   "City",
-  "Team",
   "Last year",
   "Membership",
   "Mobile",
@@ -96,7 +96,6 @@ function PlayerRow({ entry }: { entry: Player }) {
       </td>
       <td className="min-w-[160px] font-semibold">{entry.fullName}</td>
       <td>{entry.city}</td>
-      <td>{entry.team}</td>
       <td>{entry.lastYearTeam}</td>
       <td>{entry.membershipType}</td>
       <td className="tnum whitespace-nowrap">{entry.mobile}</td>
@@ -112,6 +111,40 @@ function PlayerRow({ entry }: { entry: Player }) {
       </td>
     </tr>
   );
+}
+
+function ownerExportRow(entry: Registration) {
+  return {
+    Reference: entry.reference,
+    Team: entry.teamName,
+    Owners: entry.owners,
+    Mobile: entry.ownersMobile,
+    "Player-owner": entry.playerOwner,
+    Financial: entry.financialCommitment,
+    Mentor: entry.mentor,
+    Auction: entry.auctionAvailability,
+    Status: entry.status,
+    Submitted: formatDate(entry.createdAt),
+  };
+}
+
+function playerExportRow(entry: Player) {
+  return {
+    Reference: entry.reference,
+    Name: entry.fullName,
+    City: entry.city,
+    "Last year": entry.lastYearTeam,
+    Membership: entry.membershipType,
+    Mobile: entry.mobile,
+    Email: entry.email,
+    DOB: formatDay(entry.dateOfBirth),
+    Role: entry.playingRole,
+    Batting: entry.battingStyle,
+    Bowling: entry.bowlingStyle,
+    "T-shirt": entry.tShirtSize,
+    Status: entry.status,
+    Submitted: formatDate(entry.createdAt),
+  };
 }
 
 export default async function AdminDashboardPage() {
@@ -166,10 +199,17 @@ export default async function AdminDashboardPage() {
             <h2 className="text-[20px] font-extrabold tracking-[-0.01em]">
               Player entries
             </h2>
-            <p className="tnum m-0 text-[14px] text-ink/70">
-              {players.length} {players.length === 1 ? "player" : "players"}{" "}
-              registered.
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="tnum m-0 text-[14px] text-ink/70">
+                {players.length} {players.length === 1 ? "player" : "players"}{" "}
+                registered.
+              </p>
+              <DownloadExcelButton
+                rows={players.map(playerExportRow)}
+                filename="rtpl-player-entries"
+                sheetName="Players"
+              />
+            </div>
           </div>
 
           {!playerResult.ok ? (
@@ -209,10 +249,17 @@ export default async function AdminDashboardPage() {
             <h2 className="text-[20px] font-extrabold tracking-[-0.01em]">
               Owner entries
             </h2>
-            <p className="tnum m-0 text-[14px] text-ink/70">
-              {owners.length} {owners.length === 1 ? "entry" : "entries"}{" "}
-              received.
-            </p>
+            <div className="flex items-center gap-4">
+              <p className="tnum m-0 text-[14px] text-ink/70">
+                {owners.length} {owners.length === 1 ? "entry" : "entries"}{" "}
+                received.
+              </p>
+              <DownloadExcelButton
+                rows={owners.map(ownerExportRow)}
+                filename="rtpl-owner-entries"
+                sheetName="Owners"
+              />
+            </div>
           </div>
 
           {!ownerResult.ok ? (
