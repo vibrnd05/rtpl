@@ -173,6 +173,28 @@ export function PlayerRegistrationForm() {
           number you gave with the kit, the schedule and the auction brief.
           Reference: {state.reference}
         </p>
+
+        {state.fee !== undefined && (
+          <div className="mt-8 max-w-[56ch] border-2 border-divider p-6">
+            <p className="text-[14.5px] font-semibold">
+              Entry fee: Rs. {state.fee.toLocaleString("en-IN")}
+              {state.phase && (
+                <span className="ml-2 text-ink/65">({state.phase})</span>
+              )}
+            </p>
+            <p className="mt-1.5 text-sm text-ink/70">
+              Scan the QR code below to pay.
+            </p>
+            {/* Placeholder until the payment QR code is ready. */}
+            <div
+              className="mt-5 flex aspect-square w-[min(240px,100%)] items-center justify-center border-2 border-dashed border-divider text-sm text-ink/55"
+              role="img"
+              aria-label="Payment QR code, coming soon"
+            >
+              QR code coming soon
+            </div>
+          </div>
+        )}
         <div className="mt-8.5 flex flex-wrap gap-3">
           <Link href="/" className="btn btn-primary">
             Back to the league <span className="btn__arrow">→</span>
@@ -397,6 +419,26 @@ export function PlayerRegistrationForm() {
                 invalid={Boolean(err.bowlingStyle)}
               />
             </Question>
+          </div>
+        </SectionHeading>
+      </section>
+
+      <hr className="rule mt-[clamp(36px,4vw,56px)]" />
+
+      {/* 04 — payment */}
+      <section className="pt-[clamp(36px,4vw,56px)]">
+        <SectionHeading
+          index="04"
+          title="Payment"
+          note="Pay the entry fee by scanning the QR code once your entry is in."
+        >
+          {/* Placeholder until the payment QR code is ready. */}
+          <div
+            className="flex aspect-square w-[min(240px,100%)] items-center justify-center border-2 border-dashed border-divider text-sm text-ink/55"
+            role="img"
+            aria-label="Payment QR code, coming soon"
+          >
+            QR code coming soon
           </div>
         </SectionHeading>
       </section>

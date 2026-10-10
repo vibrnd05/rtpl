@@ -1,4 +1,5 @@
 import Player from "../models/player.model.js";
+import { phaseForPosition } from "../config/playerPhases.js";
 
 function makeReference() {
   const season = process.env.LEAGUE_SEASON || 8;
@@ -36,8 +37,21 @@ export const createPlayer = async (req, res) => {
 
   for (let attempt = 0; attempt < 5; attempt++) {
     try {
+      // Entries are placed by how many already exist, so the phase and fee
+      // follow the order of registration and the form cannot choose them.
+      const phase = phaseForPosition(await Player.countDocuments());
+
+      if (!phase) {
+        return res.status(409).json({
+          error: "Registrations full",
+          message: "Player registrations are full for this season.",
+        });
+      }
+
       const player = await Player.create({
         ...entry,
+        phase: phase.key,
+        fee: phase.fee,
         reference: makeReference(),
       });
 

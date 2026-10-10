@@ -1,4 +1,5 @@
 import mongoose from "mongoose";
+import { PLAYER_PHASES } from "../config/playerPhases.js";
 
 export const PLAYING_ROLES = ["Batsman", "Bowler", "All-rounder", "Wicketkeeper"];
 
@@ -109,6 +110,18 @@ const playerSchema = new mongoose.Schema(
         values: BOWLING_STYLES,
         message: "Please select a valid type of bowler.",
       },
+    },
+
+    /** Set by the server from entry order, never by the form. */
+    phase: {
+      type: String,
+      required: true,
+      enum: PLAYER_PHASES.map((phase) => phase.key),
+    },
+
+    fee: {
+      type: Number,
+      required: true,
     },
 
     status: {

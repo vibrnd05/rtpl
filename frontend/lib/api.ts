@@ -113,6 +113,8 @@ export type PlayerReceipt = {
   player: {
     reference: string;
     fullName: string;
+    phase: string;
+    fee: number;
     status: string;
     createdAt: string;
   };
@@ -178,6 +180,8 @@ export type Player = {
   tShirtSize: string;
   battingStyle: string;
   bowlingStyle: string;
+  phase: string;
+  fee: number;
   status: string;
   createdAt: string;
   updatedAt: string;

@@ -11,6 +11,9 @@ export type FormState = {
   values: Record<string, string>;
   fullName?: string;
   reference?: string;
+  /** Phase label and fee in rupees, shown on the confirmation panel. */
+  phase?: string;
+  fee?: number;
 };
 
 const str = (data: FormData, key: string) =>
@@ -55,6 +58,8 @@ export async function registerPlayer(
         values,
         fullName: result.data.player.fullName,
         reference: result.data.player.reference,
+        phase: result.data.player.phase,
+        fee: result.data.player.fee,
       };
     }
 
