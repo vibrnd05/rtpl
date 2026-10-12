@@ -14,6 +14,11 @@ for (const key of ["JWT_SECRET", "ADMIN_USERNAME", "ADMIN_PASSWORD"]) {
   }
 }
 
+// Email is best-effort, so a missing key is a warning, not a stop.
+if (!process.env.RESEND_API_KEY) {
+  console.warn("[rtpl] RESEND_API_KEY is not set — player emails will not be sent.");
+}
+
 connectDB()
   .then(() => {
     app.listen(PORT, () => {

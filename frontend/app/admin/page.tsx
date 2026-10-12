@@ -11,6 +11,7 @@ import {
 } from "@/lib/api";
 import { LEAGUE } from "@/lib/league";
 import { signOut } from "./actions";
+import { ConfirmPaymentForm } from "./ConfirmPaymentForm";
 
 export const metadata: Metadata = {
   title: "Entries - RTPL admin",
@@ -46,7 +47,9 @@ const PLAYER_COLUMNS = [
   "Batting",
   "Bowling",
   "T-shirt",
+  "Fee",
   "Status",
+  "Payment",
   "Submitted",
 ];
 
@@ -105,7 +108,27 @@ function PlayerRow({ entry }: { entry: Player }) {
       <td>{entry.battingStyle}</td>
       <td>{entry.bowlingStyle}</td>
       <td>{entry.tShirtSize}</td>
+      <td className="tnum whitespace-nowrap">
+        Rs. {entry.fee.toLocaleString("en-IN")}
+      </td>
       <td className="capitalize">{entry.status}</td>
+      <td>
+        {entry.status === "confirmed" ? (
+          <div className="whitespace-nowrap">
+            <p className="tnum m-0 font-semibold">UTR {entry.utr}</p>
+            {entry.paymentConfirmedAt && (
+              <p className="m-0 text-xs text-ink/65">
+                {formatDate(entry.paymentConfirmedAt)}
+              </p>
+            )}
+          </div>
+        ) : (
+          <ConfirmPaymentForm
+            playerId={entry._id}
+            playerName={entry.fullName}
+          />
+        )}
+      </td>
       <td className="tnum whitespace-nowrap text-ink/70">
         {formatDate(entry.createdAt)}
       </td>
@@ -142,7 +165,12 @@ function playerExportRow(entry: Player) {
     Batting: entry.battingStyle,
     Bowling: entry.bowlingStyle,
     "T-shirt": entry.tShirtSize,
+    Fee: entry.fee,
     Status: entry.status,
+    UTR: entry.utr ?? "",
+    "Payment confirmed": entry.paymentConfirmedAt
+      ? formatDate(entry.paymentConfirmedAt)
+      : "",
     Submitted: formatDate(entry.createdAt),
   };
 }

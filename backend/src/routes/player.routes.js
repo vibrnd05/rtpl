@@ -3,6 +3,7 @@ import {
   createPlayer,
   getPlayers,
   getPlayerById,
+  confirmPlayerPayment,
 } from "../controllers/player.controller.js";
 import requireAdmin from "../middleware/requireAdmin.js";
 
@@ -14,5 +15,7 @@ router.post("/", createPlayer);
 // Reading entries back is the admin dashboard's job, so both are gated.
 router.get("/", requireAdmin, getPlayers);
 router.get("/:id", requireAdmin, getPlayerById);
+
+router.post("/:id/confirm-payment", requireAdmin, confirmPlayerPayment);
 
 export default router;

@@ -10,6 +10,8 @@ export type FormState = {
   /** Submitted values, echoed back so the form survives a failed round trip. */
   values: Record<string, string>;
   fullName?: string;
+  /** Where the entry-received email went. */
+  email?: string;
   reference?: string;
   /** Phase label and fee in rupees, shown on the confirmation panel. */
   phase?: string;
@@ -57,6 +59,7 @@ export async function registerPlayer(
         fieldErrors: {},
         values,
         fullName: result.data.player.fullName,
+        email: values.email,
         reference: result.data.player.reference,
         phase: result.data.player.phase,
         fee: result.data.player.fee,

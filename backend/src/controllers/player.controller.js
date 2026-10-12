@@ -1,5 +1,12 @@
 import Player from "../models/player.model.js";
 import { phaseForPosition } from "../config/playerPhases.js";
+import {
+  sendEntryReceivedEmail,
+  sendPaymentConfirmedEmail,
+} from "../services/email.js";
+
+/** UPI UTRs are 12 digits; NEFT/IMPS references run longer and mix letters. */
+const UTR_PATTERN = /^[A-Za-z0-9]{6,30}$/;
 
 function makeReference() {
   const season = process.env.LEAGUE_SEASON || 8;
@@ -54,6 +61,10 @@ export const createPlayer = async (req, res) => {
         fee: phase.fee,
         reference: makeReference(),
       });
+
+      // Not awaited: the entry is saved, and the player should not wait on
+      // the mail provider to see their confirmation.
+      sendEntryReceivedEmail(player);
 
       return res.status(201).json({ player });
     } catch (err) {
@@ -125,5 +136,60 @@ export const getPlayerById = async (req, res) => {
     console.error("[rtpl] could not load player", err);
 
     res.status(500).json({ error: err.message, message: "Could not load the player." });
+  }
+};
+
+/**
+ * An admin has matched the player's payment by hand. Records the UTR, marks
+ * the entry confirmed and emails the player.
+ */
+export const confirmPlayerPayment = async (req, res) => {
+  const { id } = req.params;
+  const utr = String(req.body?.utr ?? "").trim().toUpperCase();
+
+  if (!UTR_PATTERN.test(utr)) {
+    return res.status(400).json({
+      error: "Invalid UTR",
+      message: "Enter the transaction UTR — 6 to 30 letters or digits, no spaces.",
+    });
+  }
+
+  try {
+    // The status filter makes this a one-shot: a double click or a second
+    // admin cannot confirm twice and send the player two emails.
+    const player = await Player.findOneAndUpdate(
+      { _id: id, status: { $ne: "confirmed" } },
+      { status: "confirmed", utr, paymentConfirmedAt: new Date() },
+      { new: true }
+    );
+
+    if (!player) {
+      const exists = await Player.exists({ _id: id });
+
+      return exists
+        ? res.status(409).json({
+            error: "Already confirmed",
+            message: "This player's payment has already been confirmed.",
+          })
+        : res.status(404).json({
+            error: "Not found",
+            message: "No player with that id.",
+          });
+    }
+
+    const email = await sendPaymentConfirmedEmail(player);
+
+    res.json({ player, emailSent: email.ok });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(400).json({
+        error: err.message,
+        message: "That is not a valid player id.",
+      });
+    }
+
+    console.error("[rtpl] could not confirm payment", err);
+
+    res.status(500).json({ error: err.message, message: "Could not confirm the payment." });
   }
 };

@@ -169,32 +169,24 @@ export function PlayerRegistrationForm() {
             : "Your entry is in the squad list."}
         </h2>
         <p className="mt-7 max-w-[56ch] text-[16.5px] leading-[1.65]">
-          The tournament desk has your details. We will be in touch on the
-          number you gave with the kit, the schedule and the auction brief.
-          Reference: {state.reference}
+          The tournament desk has your details, and we have sent a copy of
+          your entry to {state.email || "your email address"}. Once the RTPL
+          Management Team has verified your payment, we will email you again
+          to confirm your registration.
         </p>
 
-        {state.fee !== undefined && (
-          <div className="mt-8 max-w-[56ch] border-2 border-divider p-6">
-            <p className="text-[14.5px] font-semibold">
-              Entry fee: Rs. {state.fee.toLocaleString("en-IN")}
-              {state.phase && (
-                <span className="ml-2 text-ink/65">({state.phase})</span>
-              )}
-            </p>
+        <div className="mt-8 max-w-[56ch] border-2 border-divider p-6">
+          <p className="tnum m-0 text-[14.5px] font-semibold">
+            Reference: {state.reference}
+          </p>
+          {state.fee !== undefined && (
             <p className="mt-1.5 text-sm text-ink/70">
-              Scan the QR code below to pay.
+              Entry fee: Rs. {state.fee.toLocaleString("en-IN")}
+              {state.phase && <span className="ml-2">({state.phase})</span>}
             </p>
-            {/* Placeholder until the payment QR code is ready. */}
-            <div
-              className="mt-5 flex aspect-square w-[min(240px,100%)] items-center justify-center border-2 border-dashed border-divider text-sm text-ink/55"
-              role="img"
-              aria-label="Payment QR code, coming soon"
-            >
-              QR code coming soon
-            </div>
-          </div>
-        )}
+          )}
+        </div>
+
         <div className="mt-8.5 flex flex-wrap gap-3">
           <Link href="/" className="btn btn-primary">
             Back to the league <span className="btn__arrow">→</span>
@@ -430,7 +422,7 @@ export function PlayerRegistrationForm() {
         <SectionHeading
           index="04"
           title="Payment"
-          note="Pay the entry fee by scanning the QR code once your entry is in."
+          note="Scan the QR code to pay the entry fee, then submit your entry. Keep the transaction UTR handy in case we need to trace the payment."
         >
           {/* Placeholder until the payment QR code is ready. */}
           <div

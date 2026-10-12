@@ -183,6 +183,9 @@ export type Player = {
   phase: string;
   fee: number;
   status: string;
+  /** Set once an admin confirms the payment. */
+  utr?: string;
+  paymentConfirmedAt?: string;
   createdAt: string;
   updatedAt: string;
 };
@@ -191,4 +194,15 @@ export function listPlayers(token: string) {
   return apiFetch<{ count: number; players: Player[] }>("/api/players", {
     headers: { Authorization: `Bearer ${token}` },
   });
+}
+
+export function confirmPlayerPayment(token: string, playerId: string, utr: string) {
+  return apiFetch<{ player: Player; emailSent: boolean }>(
+    `/api/players/${encodeURIComponent(playerId)}/confirm-payment`,
+    {
+      method: "POST",
+      headers: { Authorization: `Bearer ${token}` },
+      body: JSON.stringify({ utr }),
+    }
+  );
 }

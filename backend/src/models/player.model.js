@@ -129,6 +129,16 @@ const playerSchema = new mongoose.Schema(
       enum: ["pending", "confirmed", "waitlisted", "rejected"],
       default: "pending",
     },
+
+    /** Recorded by an admin when they confirm the payment by hand. */
+    utr: {
+      type: String,
+      trim: true,
+    },
+
+    paymentConfirmedAt: {
+      type: Date,
+    },
   },
   { timestamps: true }
 );
