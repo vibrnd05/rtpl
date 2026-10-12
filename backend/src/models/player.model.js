@@ -11,6 +11,16 @@ export const BATTING_STYLES = ["Right-handed", "Left-handed"];
 
 export const BOWLING_STYLES = ["Pace", "Spin", "Does not bowl"];
 
+/** RTPL 7.0's sides, plus "Uncapped" for anyone who did not play last season. */
+export const LAST_YEAR_TEAMS = [
+  "Eastern Legends",
+  "Gully Boys",
+  "Master Blasters",
+  "Super Warrior",
+  "Toofani Panther",
+  "Uncapped",
+];
+
 const playerSchema = new mongoose.Schema(
   {
     reference: {
@@ -57,14 +67,13 @@ const playerSchema = new mongoose.Schema(
       maxlength: [80, "Please keep this under 80 characters."],
     },
 
-    /** Free text rather than an enum: "Uncapped" is as valid an answer as
-     *  any chapter side, and a player's last-season side may not even be
-     *  one of this season's five. */
     lastYearTeam: {
       type: String,
-      required: [true, "Please enter last year's team, or 'Uncapped'."],
-      trim: true,
-      maxlength: [80, "Please keep this under 80 characters."],
+      required: [true, "Please select last year's team, or Uncapped."],
+      enum: {
+        values: LAST_YEAR_TEAMS,
+        message: "Please select a valid team from last season.",
+      },
     },
 
     membershipType: {

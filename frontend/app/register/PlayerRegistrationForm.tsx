@@ -10,6 +10,7 @@ import {
   MEMBERSHIP_TYPES,
   BATTING_STYLES,
   BOWLING_STYLES,
+  LAST_YEAR_TEAMS,
 } from "@/lib/players";
 import { LEAGUE } from "@/lib/league";
 
@@ -315,21 +316,36 @@ export function PlayerRegistrationForm() {
           <div className="grid gap-6">
             <Question
               label="Last year's team"
-              hint="If you didn't play last season, write Uncapped."
+              hint="Your RTPL 7.0 side. If you didn't play last season, choose Uncapped."
               required
               htmlFor="lastYearTeam"
               error={err.lastYearTeam}
             >
-              <input
-                className="input"
-                id="lastYearTeam"
-                name="lastYearTeam"
-                type="text"
-                maxLength={80}
-                value={values.lastYearTeam}
-                onChange={set("lastYearTeam")}
-                aria-invalid={Boolean(err.lastYearTeam)}
-              />
+              <div className="relative">
+                <select
+                  className="input pr-10"
+                  id="lastYearTeam"
+                  name="lastYearTeam"
+                  value={values.lastYearTeam}
+                  onChange={set("lastYearTeam")}
+                  aria-invalid={Boolean(err.lastYearTeam)}
+                >
+                  <option value="" disabled>
+                    Select a team
+                  </option>
+                  {LAST_YEAR_TEAMS.map((team) => (
+                    <option key={team} value={team}>
+                      {team}
+                    </option>
+                  ))}
+                </select>
+                <span
+                  aria-hidden="true"
+                  className="pointer-events-none absolute right-4 top-1/2 -translate-y-1/2 text-xs text-ink/60"
+                >
+                  ▼
+                </span>
+              </div>
             </Question>
 
             <Question

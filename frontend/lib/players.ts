@@ -19,3 +19,13 @@ export const MEMBERSHIP_TYPES = ["Tabler", "41er"] as const;
 export const BATTING_STYLES = ["Right-handed", "Left-handed"] as const;
 
 export const BOWLING_STYLES = ["Pace", "Spin", "Does not bowl"] as const;
+
+/** RTPL 7.0's sides, plus an answer for anyone who did not play last season. */
+export const LAST_YEAR_TEAMS = [
+  "Eastern Legends",
+  "Gully Boys",
+  "Master Blasters",
+  "Super Warrior",
+  "Toofani Panther",
+  "Uncapped",
+] as const;
