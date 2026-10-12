@@ -16,6 +16,16 @@ function sender() {
   return process.env.RESEND_FROM || "RTPL <noreply@rtpl.vibrnd.in>";
 }
 
+/**
+ * Logos are hotlinked from the site rather than attached: smaller emails,
+ * and no attachment paperclip in the inbox. The files are email-sized copies
+ * in frontend/public/email/.
+ */
+function assetUrl(path) {
+  const base = (process.env.SITE_URL || "https://rtpl.vibrnd.in").replace(/\/+$/, "");
+  return `${base}/email/${path}`;
+}
+
 function season() {
   return process.env.LEAGUE_SEASON || 8;
 }
@@ -72,7 +82,8 @@ function renderHtml({ heading, paragraphs, details, closing }) {
         <td align="center">
           <table role="presentation" width="100%" cellpadding="0" cellspacing="0" style="max-width:560px;background:#ffffff;border:1px solid #e6e1d8;">
             <tr>
-              <td style="padding:24px 28px;border-bottom:4px solid #c8102e;">
+              <td align="center" style="padding:28px 28px 22px;border-bottom:4px solid #c8102e;text-align:center;">
+                <img src="${assetUrl("rtpl-logo.png")}" width="138" height="140" alt="RTPL — Round Table Premier League" style="display:block;margin:0 auto 14px;width:138px;height:140px;border:0;outline:none;text-decoration:none;" />
                 <p style="margin:0;font-size:12px;letter-spacing:2px;text-transform:uppercase;color:#6b6459;">Round Table Premier League · Season ${season()}</p>
                 <h1 style="margin:10px 0 0;font-size:22px;line-height:1.3;color:#1d1a16;">${escapeHtml(heading)}</h1>
               </td>
@@ -90,6 +101,12 @@ function renderHtml({ heading, paragraphs, details, closing }) {
                   )
                   .join("")}
                 <p style="margin:24px 0 0;font-size:15px;line-height:1.6;color:#1d1a16;">Warm regards,<br /><strong>The RTPL Management Team</strong></p>
+              </td>
+            </tr>
+            <tr>
+              <td align="center" bgcolor="#1d1a16" style="padding:18px 28px;background:#1d1a16;text-align:center;">
+                <p style="margin:0 0 8px;font-size:11px;letter-spacing:2px;text-transform:uppercase;color:#b8b0a3;">Technology by</p>
+                <img src="${assetUrl("vibrnd-logo.png")}" width="100" height="38" alt="Vibrnd" style="display:block;margin:0 auto;width:100px;height:38px;border:0;outline:none;text-decoration:none;color:#ffffff;font-size:16px;font-weight:700;" />
               </td>
             </tr>
           </table>
@@ -115,6 +132,8 @@ function renderText({ heading, paragraphs, details, closing }) {
     "The RTPL Management Team",
     "",
     "This is an automated email from a send-only address. Please do not reply.",
+    "",
+    "Technology by Vibrnd",
   ].join("\n");
 }
 
