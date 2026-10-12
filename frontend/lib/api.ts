@@ -38,10 +38,13 @@ export async function apiFetch<T>(
   path: string,
   init: RequestInit = {}
 ): Promise<ApiResult<T>> {
+  // A FormData body sets its own multipart Content-Type, boundary included.
+  const isMultipart = init.body instanceof FormData;
+
   const response = await fetch(`${getApiBaseUrl()}${path}`, {
     ...init,
     headers: {
-      "Content-Type": "application/json",
+      ...(isMultipart ? {} : { "Content-Type": "application/json" }),
       ...init.headers,
     },
     // Registration is a mutation — never serve it from the data cache.
@@ -120,11 +123,14 @@ export type PlayerReceipt = {
   };
 };
 
-export function submitPlayer(payload: PlayerPayload) {
-  return apiFetch<PlayerReceipt>("/api/players", {
-    method: "POST",
-    body: JSON.stringify(payload),
-  });
+/** Multipart, because the entry carries the payment screenshot. */
+export function submitPlayer(payload: PlayerPayload, paymentScreenshot: File) {
+  const body = new FormData();
+
+  for (const [key, value] of Object.entries(payload)) body.append(key, value);
+  body.append("paymentScreenshot", paymentScreenshot, paymentScreenshot.name);
+
+  return apiFetch<PlayerReceipt>("/api/players", { method: "POST", body });
 }
 
 /* -- Admin ---------------------------------------------------------------- */
@@ -183,6 +189,8 @@ export type Player = {
   phase: string;
   fee: number;
   status: string;
+  /** Signed, so it only works for whoever the dashboard handed it to. */
+  paymentScreenshotUrl?: string | null;
   /** Set once an admin confirms the payment. */
   utr?: string;
   paymentConfirmedAt?: string;

@@ -440,13 +440,36 @@ export function PlayerRegistrationForm() {
           title="Payment"
           note="Scan the QR code to pay the entry fee, then submit your entry. Keep the transaction UTR handy in case we need to trace the payment."
         >
-          {/* Placeholder until the payment QR code is ready. */}
-          <div
-            className="flex aspect-square w-[min(240px,100%)] items-center justify-center border-2 border-dashed border-divider text-sm text-ink/55"
-            role="img"
-            aria-label="Payment QR code, coming soon"
-          >
-            QR code coming soon
+          <div className="grid gap-7">
+            {/* Placeholder until the payment QR code is ready. */}
+            <div
+              className="flex aspect-square w-[min(240px,100%)] items-center justify-center border-2 border-dashed border-divider text-sm text-ink/55"
+              role="img"
+              aria-label="Payment QR code, coming soon"
+            >
+              QR code coming soon
+            </div>
+
+            <Question
+              label="Upload payment screenshot"
+              hint={
+                state.status === "error"
+                  ? "Please attach the screenshot again before resubmitting."
+                  : "A screenshot of the completed payment showing the UTR / transaction ID. JPG, PNG, WEBP or HEIC, up to 5 MB."
+              }
+              required
+              htmlFor="paymentScreenshot"
+              error={err.paymentScreenshot}
+            >
+              <input
+                className="input file:mr-4 file:cursor-pointer file:border-0 file:bg-ink file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-paper"
+                id="paymentScreenshot"
+                name="paymentScreenshot"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                aria-invalid={Boolean(err.paymentScreenshot)}
+              />
+            </Question>
           </div>
         </SectionHeading>
       </section>

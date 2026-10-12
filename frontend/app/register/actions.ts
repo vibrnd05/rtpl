@@ -21,6 +21,9 @@ export type FormState = {
 const str = (data: FormData, key: string) =>
   (data.get(key) as string | null)?.trim() ?? "";
 
+/** Mirrors the backend's upload limit, so an oversize file fails here, fast. */
+const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
+
 /**
  * Shapes the submission, forwards it to the API, and turns the answer back
  * into form state. Validation lives in the Mongoose model, so the rules the
@@ -49,8 +52,28 @@ export async function registerPlayer(
     return { status: "success", message: "", fieldErrors: {}, values };
   }
 
+  const screenshot = formData.get("paymentScreenshot");
+
+  if (!(screenshot instanceof File) || screenshot.size === 0) {
+    return {
+      status: "error",
+      message: "Please upload a screenshot of your payment.",
+      fieldErrors: { paymentScreenshot: "Please upload a screenshot of your payment." },
+      values,
+    };
+  }
+
+  if (screenshot.size > MAX_SCREENSHOT_BYTES) {
+    return {
+      status: "error",
+      message: "The payment screenshot must be 5 MB or smaller.",
+      fieldErrors: { paymentScreenshot: "The payment screenshot must be 5 MB or smaller." },
+      values,
+    };
+  }
+
   try {
-    const result = await submitPlayer(values);
+    const result = await submitPlayer(values, screenshot);
 
     if (result.ok) {
       return {

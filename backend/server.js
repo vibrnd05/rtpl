@@ -19,6 +19,13 @@ if (!process.env.RESEND_API_KEY) {
   console.warn("[rtpl] RESEND_API_KEY is not set — player emails will not be sent.");
 }
 
+for (const key of ["CLOUDINARY_CLOUD_NAME", "CLOUDINARY_API_KEY", "CLOUDINARY_API_SECRET"]) {
+  if (!process.env[key]) {
+    console.error(`[rtpl] ${key} is not set — payment screenshots cannot be uploaded.`);
+    process.exit(1);
+  }
+}
+
 connectDB()
   .then(() => {
     app.listen(PORT, () => {

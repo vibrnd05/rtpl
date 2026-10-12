@@ -188,7 +188,7 @@ export function sendEntryReceivedEmail(player) {
       paragraphs: [
         `Dear ${name},`,
         `Thank you for registering for the Round Table Premier League, Season ${season()}. Your entry has reached the tournament desk and has been recorded under the reference below.`,
-        `Your registration is <strong>pending payment verification</strong>. Once the RTPL Management Team has matched your entry-fee payment against our account, we will write to you again to confirm your place in the player pool.`,
+        `Your registration is <strong>pending payment verification</strong>. Once the RTPL Management Team has verified your entry-fee payment, we will write to you again to confirm your place in the player pool.`,
       ],
       details: [
         ["Reference", player.reference],
@@ -198,7 +198,7 @@ export function sendEntryReceivedEmail(player) {
         ["Status", "Awaiting payment confirmation"],
       ],
       closing: [
-        "If you have not paid yet, please complete the payment using the QR code on the registration form. Keep your transaction receipt and its UTR / reference number handy — it helps us trace the payment quickly if there is any query.",
+        "We have the payment screenshot you uploaded with your entry, and the team will match it against our account. Please keep your transaction receipt and its UTR / reference number handy — it helps us trace the payment quickly if there is any query.",
         "Please keep your entry reference safe — the tournament desk will ask for it if there is any query about your entry.",
       ],
     },

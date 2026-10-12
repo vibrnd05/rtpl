@@ -139,6 +139,12 @@ const playerSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    /** Cloudinary asset for the screenshot the player uploaded with the entry. */
+    paymentScreenshot: {
+      publicId: { type: String },
+      format: { type: String },
+    },
+
     /** Recorded by an admin when they confirm the payment by hand. */
     utr: {
       type: String,

@@ -113,6 +113,16 @@ function PlayerRow({ entry }: { entry: Player }) {
       </td>
       <td className="capitalize">{entry.status}</td>
       <td>
+        {entry.paymentScreenshotUrl && (
+          <a
+            href={entry.paymentScreenshotUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="mb-2 inline-block whitespace-nowrap text-[13.5px] font-semibold text-accent-700 underline hover:text-accent-600"
+          >
+            View screenshot ↗
+          </a>
+        )}
         {entry.status === "confirmed" ? (
           <div className="whitespace-nowrap">
             <p className="tnum m-0 font-semibold">UTR {entry.utr}</p>
