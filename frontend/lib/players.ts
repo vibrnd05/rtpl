@@ -22,10 +22,10 @@ export const BOWLING_STYLES = ["Pace", "Spin", "Does not bowl"] as const;
 
 /** RTPL 7.0's sides, plus an answer for anyone who did not play last season. */
 export const LAST_YEAR_TEAMS = [
-  "Eastern Legends",
   "Gully Boys",
   "Master Blasters",
-  "Super Warrior",
-  "Toofani Panther",
+  "Panthers",
+  "Super Lions",
+  "Tuskers",
   "Uncapped",
 ] as const;
