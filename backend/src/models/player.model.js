@@ -5,7 +5,7 @@ export const PLAYING_ROLES = ["Batsman", "Bowler", "All-rounder", "Wicketkeeper"
 
 export const T_SHIRT_SIZES = ["S", "M", "L", "XL", "XXL", "XXXL"];
 
-export const MEMBERSHIP_TYPES = ["Tabler", "41er"];
+export const MEMBERSHIP_TYPES = ["Tabler", "Square Leg"];
 
 export const BATTING_STYLES = ["Right-handed", "Left-handed"];
 
@@ -20,6 +20,9 @@ export const LAST_YEAR_TEAMS = [
   "Tuskers",
   "Uncapped",
 ];
+
+const AVAILABILITY_MESSAGE =
+  "Please confirm that you are available to play on both 20th and 21st February 2027.";
 
 const playerSchema = new mongoose.Schema(
   {
@@ -78,7 +81,7 @@ const playerSchema = new mongoose.Schema(
 
     membershipType: {
       type: String,
-      required: [true, "Please select Tabler or 41er."],
+      required: [true, "Please select Tabler or Square Leg."],
       enum: {
         values: MEMBERSHIP_TYPES,
         message: "Please select a valid membership type.",
@@ -103,6 +106,14 @@ const playerSchema = new mongoose.Schema(
       },
     },
 
+    /** A string, so that a number like "07" keeps its leading zero. */
+    jerseyNumber: {
+      type: String,
+      required: [true, "Please enter a jersey number."],
+      trim: true,
+      match: [/^\d{1,3}$/, "The jersey number must be 1 to 3 digits."],
+    },
+
     battingStyle: {
       type: String,
       required: [true, "Please select a type of batsman."],
@@ -118,6 +129,15 @@ const playerSchema = new mongoose.Schema(
       enum: {
         values: BOWLING_STYLES,
         message: "Please select a valid type of bowler.",
+      },
+    },
+
+    availabilityConfirmed: {
+      type: Boolean,
+      required: [true, AVAILABILITY_MESSAGE],
+      validate: {
+        validator: (value) => value === true,
+        message: AVAILABILITY_MESSAGE,
       },
     },
 

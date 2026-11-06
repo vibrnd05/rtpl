@@ -108,8 +108,11 @@ export type PlayerPayload = {
   membershipType: string;
   playingRole: string;
   tShirtSize: string;
+  jerseyNumber: string;
   battingStyle: string;
   bowlingStyle: string;
+  /** "true" or "false": multipart fields are strings, the model casts it. */
+  availabilityConfirmed: string;
 };
 
 export type PlayerReceipt = {
@@ -189,6 +192,8 @@ export type Player = {
   membershipType: string;
   playingRole: string;
   tShirtSize: string;
+  /** Empty for entries submitted before the number was asked for. */
+  jerseyNumber?: string;
   battingStyle: string;
   bowlingStyle: string;
   phase: string;

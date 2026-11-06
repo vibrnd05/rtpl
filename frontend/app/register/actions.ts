@@ -54,8 +54,11 @@ export async function registerPlayer(
     membershipType: str(formData, "membershipType"),
     playingRole: str(formData, "playingRole"),
     tShirtSize: str(formData, "tShirtSize"),
+    jerseyNumber: str(formData, "jerseyNumber"),
     battingStyle: str(formData, "battingStyle"),
     bowlingStyle: str(formData, "bowlingStyle"),
+    // An unticked checkbox is simply absent from the form data.
+    availabilityConfirmed: formData.has("availabilityConfirmed") ? "true" : "false",
   };
 
   // Honeypot — bots fill every field, players never see this one.

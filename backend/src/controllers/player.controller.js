@@ -30,8 +30,10 @@ export const createPlayer = async (req, res) => {
     membershipType,
     playingRole,
     tShirtSize,
+    jerseyNumber,
     battingStyle,
     bowlingStyle,
+    availabilityConfirmed,
   } = req.body;
 
   const entry = {
@@ -44,8 +46,10 @@ export const createPlayer = async (req, res) => {
     membershipType,
     playingRole,
     tShirtSize,
+    jerseyNumber,
     battingStyle,
     bowlingStyle,
+    availabilityConfirmed,
   };
 
   const photoFile = req.files?.playerPhoto?.[0];

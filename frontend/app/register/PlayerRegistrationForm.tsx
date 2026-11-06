@@ -143,9 +143,11 @@ export function PlayerRegistrationForm() {
     membershipType: "",
     playingRole: "",
     tShirtSize: "",
+    jerseyNumber: "",
     battingStyle: "",
     bowlingStyle: "",
   });
+  const [availabilityConfirmed, setAvailabilityConfirmed] = useState(false);
 
   const set =
     (key: keyof typeof values) =>
@@ -370,7 +372,7 @@ export function PlayerRegistrationForm() {
             </Question>
 
             <Question
-              label="Tabler / 41er"
+              label="Tabler / Square Leg"
               required
               error={err.membershipType}
             >
@@ -403,6 +405,28 @@ export function PlayerRegistrationForm() {
                 value={values.tShirtSize}
                 onChange={pick("tShirtSize")}
                 invalid={Boolean(err.tShirtSize)}
+              />
+            </Question>
+
+            <Question
+              label="Jersey number"
+              hint="Digits only, up to 3."
+              required
+              htmlFor="jerseyNumber"
+              error={err.jerseyNumber}
+            >
+              <input
+                className="input"
+                id="jerseyNumber"
+                name="jerseyNumber"
+                type="text"
+                inputMode="numeric"
+                maxLength={3}
+                value={values.jerseyNumber}
+                onChange={(e) =>
+                  pick("jerseyNumber")(e.target.value.replace(/\D/g, ""))
+                }
+                aria-invalid={Boolean(err.jerseyNumber)}
               />
             </Question>
 
@@ -495,7 +519,22 @@ export function PlayerRegistrationForm() {
         </SectionHeading>
       </section>
 
-      <div className="mt-[clamp(40px,5vw,64px)] flex flex-wrap items-center gap-3 border-t-2 border-divider pt-8">
+      <label className="mt-[clamp(40px,5vw,64px)] flex cursor-pointer items-start gap-3 border-t-2 border-divider pt-8 text-[14.5px] font-semibold leading-normal">
+        <input
+          className="mt-0.5 h-4.5 w-4.5 shrink-0 cursor-pointer accent-accent"
+          type="checkbox"
+          name="availabilityConfirmed"
+          checked={availabilityConfirmed}
+          onChange={(e) => setAvailabilityConfirmed(e.target.checked)}
+        />
+        <span>
+          By submitting this form, I confirm that I am available to attend and
+          play in RTPL on both 20th and 21st February 2027
+          <span className="ml-1 text-accent-700">*</span>
+        </span>
+      </label>
+
+      <div className="mt-6 flex flex-wrap items-center gap-3">
         <SubmitButton />
         <Link href="/" className="btn btn-ghost">
           Cancel

@@ -48,6 +48,7 @@ const PLAYER_COLUMNS = [
   "Batting",
   "Bowling",
   "T-shirt",
+  "Jersey no.",
   "Fee",
   "Status",
   "Payment",
@@ -121,6 +122,7 @@ function PlayerRow({ entry }: { entry: Player }) {
       <td>{entry.battingStyle}</td>
       <td>{entry.bowlingStyle}</td>
       <td>{entry.tShirtSize}</td>
+      <td className="tnum">{entry.jerseyNumber}</td>
       <td className="tnum whitespace-nowrap">
         Rs. {entry.fee.toLocaleString("en-IN")}
       </td>
@@ -188,6 +190,7 @@ function playerExportRow(entry: Player) {
     Batting: entry.battingStyle,
     Bowling: entry.bowlingStyle,
     "T-shirt": entry.tShirtSize,
+    "Jersey no.": entry.jerseyNumber ?? "",
     Fee: entry.fee,
     Status: entry.status,
     UTR: entry.utr ?? "",
