@@ -123,11 +123,16 @@ export type PlayerReceipt = {
   };
 };
 
-/** Multipart, because the entry carries the payment screenshot. */
-export function submitPlayer(payload: PlayerPayload, paymentScreenshot: File) {
+/** Multipart, because the entry carries the player's picture and payment screenshot. */
+export function submitPlayer(
+  payload: PlayerPayload,
+  playerPhoto: File,
+  paymentScreenshot: File
+) {
   const body = new FormData();
 
   for (const [key, value] of Object.entries(payload)) body.append(key, value);
+  body.append("playerPhoto", playerPhoto, playerPhoto.name);
   body.append("paymentScreenshot", paymentScreenshot, paymentScreenshot.name);
 
   return apiFetch<PlayerReceipt>("/api/players", { method: "POST", body });
@@ -191,6 +196,8 @@ export type Player = {
   status: string;
   /** Signed, so it only works for whoever the dashboard handed it to. */
   paymentScreenshotUrl?: string | null;
+  /** Signed too. Empty for entries submitted before the picture was asked for. */
+  playerPhotoUrl?: string | null;
   /** Set once an admin confirms the payment. */
   utr?: string;
   paymentConfirmedAt?: string;

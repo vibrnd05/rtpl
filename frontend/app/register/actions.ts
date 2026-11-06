@@ -22,7 +22,18 @@ const str = (data: FormData, key: string) =>
   (data.get(key) as string | null)?.trim() ?? "";
 
 /** Mirrors the backend's upload limit, so an oversize file fails here, fast. */
-const MAX_SCREENSHOT_BYTES = 5 * 1024 * 1024;
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+
+/** What is wrong with an uploaded image, or null if it can go to the API. */
+function imageError(
+  file: FormDataEntryValue | null,
+  missing: string,
+  tooLarge: string
+) {
+  if (!(file instanceof File) || file.size === 0) return missing;
+  if (file.size > MAX_IMAGE_BYTES) return tooLarge;
+  return null;
+}
 
 /**
  * Shapes the submission, forwards it to the API, and turns the answer back
@@ -52,28 +63,34 @@ export async function registerPlayer(
     return { status: "success", message: "", fieldErrors: {}, values };
   }
 
+  const photo = formData.get("playerPhoto");
   const screenshot = formData.get("paymentScreenshot");
 
-  if (!(screenshot instanceof File) || screenshot.size === 0) {
-    return {
-      status: "error",
-      message: "Please upload a screenshot of your payment.",
-      fieldErrors: { paymentScreenshot: "Please upload a screenshot of your payment." },
-      values,
-    };
-  }
+  const photoError = imageError(
+    photo,
+    "Please upload a picture of yourself.",
+    "Your picture must be 5 MB or smaller."
+  );
+  const screenshotError = imageError(
+    screenshot,
+    "Please upload a screenshot of your payment.",
+    "The payment screenshot must be 5 MB or smaller."
+  );
 
-  if (screenshot.size > MAX_SCREENSHOT_BYTES) {
+  if (photoError || screenshotError) {
     return {
       status: "error",
-      message: "The payment screenshot must be 5 MB or smaller.",
-      fieldErrors: { paymentScreenshot: "The payment screenshot must be 5 MB or smaller." },
+      message: (photoError || screenshotError) as string,
+      fieldErrors: {
+        ...(photoError && { playerPhoto: photoError }),
+        ...(screenshotError && { paymentScreenshot: screenshotError }),
+      },
       values,
     };
   }
 
   try {
-    const result = await submitPlayer(values, screenshot);
+    const result = await submitPlayer(values, photo as File, screenshot as File);
 
     if (result.ok) {
       return {

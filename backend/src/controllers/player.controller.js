@@ -2,8 +2,9 @@ import Player from "../models/player.model.js";
 import { PLAYER_PHASES, phaseForPosition } from "../config/playerPhases.js";
 import {
   uploadPaymentScreenshot,
-  deletePaymentScreenshot,
-  paymentScreenshotUrl,
+  uploadPlayerPhoto,
+  deleteEntryImage,
+  entryImageUrl,
 } from "../config/cloudinary.js";
 import {
   sendEntryReceivedEmail,
@@ -47,7 +48,17 @@ export const createPlayer = async (req, res) => {
     bowlingStyle,
   };
 
-  if (!req.file) {
+  const photoFile = req.files?.playerPhoto?.[0];
+  const screenshotFile = req.files?.paymentScreenshot?.[0];
+
+  if (!photoFile) {
+    return res.status(400).json({
+      error: "No picture",
+      message: "Please upload a picture of yourself.",
+    });
+  }
+
+  if (!screenshotFile) {
     return res.status(400).json({
       error: "No screenshot",
       message: "Please upload a screenshot of your payment.",
@@ -55,7 +66,7 @@ export const createPlayer = async (req, res) => {
   }
 
   // Check the fields before uploading, so a typo in the form does not leave
-  // an image behind in Cloudinary. Phase, fee and reference are the server's
+  // images behind in Cloudinary. Phase, fee and reference are the server's
   // to set, so placeholders stand in for them here.
   try {
     await new Player({
@@ -80,18 +91,39 @@ export const createPlayer = async (req, res) => {
     });
   }
 
-  let paymentScreenshot;
+  // Settled, not Promise.all: if one upload fails, the other still has to
+  // finish so it can be cleaned up instead of being left in Cloudinary.
+  const [photoUpload, screenshotUpload] = await Promise.allSettled([
+    uploadPlayerPhoto(photoFile.buffer),
+    uploadPaymentScreenshot(screenshotFile.buffer),
+  ]);
 
-  try {
-    paymentScreenshot = await uploadPaymentScreenshot(req.file.buffer);
-  } catch (err) {
-    console.error("[rtpl] could not upload payment screenshot", err);
+  if (photoUpload.status === "rejected") {
+    console.error("[rtpl] could not upload player picture", photoUpload.reason);
+
+    if (screenshotUpload.status === "fulfilled") {
+      deleteEntryImage(screenshotUpload.value.publicId);
+    }
 
     return res.status(502).json({
-      error: err.message,
+      error: photoUpload.reason?.message,
+      message: "We could not upload your picture. Please try again in a moment.",
+    });
+  }
+
+  if (screenshotUpload.status === "rejected") {
+    console.error("[rtpl] could not upload payment screenshot", screenshotUpload.reason);
+
+    deleteEntryImage(photoUpload.value.publicId);
+
+    return res.status(502).json({
+      error: screenshotUpload.reason?.message,
       message: "We could not upload your payment screenshot. Please try again in a moment.",
     });
   }
+
+  const playerPhoto = photoUpload.value;
+  const paymentScreenshot = screenshotUpload.value;
 
   let saved = false;
 
@@ -115,6 +147,7 @@ export const createPlayer = async (req, res) => {
           fee: phase.fee,
           reference: makeReference(),
           paymentScreenshot,
+          playerPhoto,
         });
 
         saved = true;
@@ -155,17 +188,21 @@ export const createPlayer = async (req, res) => {
       message: "Could not allocate an entry reference. Please submit again.",
     });
   } finally {
-    // Every way out of the loop except a saved entry leaves the screenshot
+    // Every way out of the loop except a saved entry leaves both images
     // belonging to nothing.
-    if (!saved) deletePaymentScreenshot(paymentScreenshot.publicId);
+    if (!saved) {
+      deleteEntryImage(paymentScreenshot.publicId);
+      deleteEntryImage(playerPhoto.publicId);
+    }
   }
 };
 
-/** Players as the dashboard needs them: with a signed link to the screenshot. */
-function withScreenshotUrl(player) {
+/** Players as the dashboard needs them: with signed links to their images. */
+function withImageUrls(player) {
   return {
     ...player.toObject(),
-    paymentScreenshotUrl: paymentScreenshotUrl(player.paymentScreenshot),
+    paymentScreenshotUrl: entryImageUrl(player.paymentScreenshot),
+    playerPhotoUrl: entryImageUrl(player.playerPhoto),
   };
 }
 
@@ -173,7 +210,7 @@ export const getPlayers = async (_req, res) => {
   try {
     const players = await Player.find().sort({ createdAt: -1 });
 
-    res.json({ count: players.length, players: players.map(withScreenshotUrl) });
+    res.json({ count: players.length, players: players.map(withImageUrls) });
   } catch (err) {
     console.error("[rtpl] could not list players", err);
 
@@ -194,7 +231,7 @@ export const getPlayerById = async (req, res) => {
       });
     }
 
-    res.json({ player: withScreenshotUrl(player) });
+    res.json({ player: withImageUrls(player) });
   } catch (err) {
     if (err.name === "CastError") {
       return res.status(400).json({

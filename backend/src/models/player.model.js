@@ -145,6 +145,12 @@ const playerSchema = new mongoose.Schema(
       format: { type: String },
     },
 
+    /** Cloudinary asset for the player's picture, kept in its own folder. */
+    playerPhoto: {
+      publicId: { type: String },
+      format: { type: String },
+    },
+
     /** Recorded by an admin when they confirm the payment by hand. */
     utr: {
       type: String,

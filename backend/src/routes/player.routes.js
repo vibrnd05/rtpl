@@ -6,13 +6,13 @@ import {
   confirmPlayerPayment,
 } from "../controllers/player.controller.js";
 import requireAdmin from "../middleware/requireAdmin.js";
-import uploadScreenshot from "../middleware/uploadScreenshot.js";
+import uploadEntryImages from "../middleware/uploadEntryImages.js";
 
 const router = express.Router();
 
 // Open — this is the player registration form posting an entry.
-// Multipart: the entry's fields plus the payment screenshot.
-router.post("/", uploadScreenshot, createPlayer);
+// Multipart: the entry's fields plus the player's picture and payment screenshot.
+router.post("/", uploadEntryImages, createPlayer);
 
 // Reading entries back is the admin dashboard's job, so both are gated.
 router.get("/", requireAdmin, getPlayers);

@@ -37,6 +37,7 @@ const OWNER_COLUMNS = [
 const PLAYER_COLUMNS = [
   "Reference",
   "Name",
+  "Picture",
   "City",
   "Last year",
   "Membership",
@@ -98,6 +99,18 @@ function PlayerRow({ entry }: { entry: Player }) {
         {entry.reference}
       </td>
       <td className="min-w-[160px] font-semibold">{entry.fullName}</td>
+      <td>
+        {entry.playerPhotoUrl && (
+          <a
+            href={entry.playerPhotoUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="whitespace-nowrap text-[13.5px] font-semibold text-accent-700 underline hover:text-accent-600"
+          >
+            View picture ↗
+          </a>
+        )}
+      </td>
       <td>{entry.city}</td>
       <td>{entry.lastYearTeam}</td>
       <td>{entry.membershipType}</td>

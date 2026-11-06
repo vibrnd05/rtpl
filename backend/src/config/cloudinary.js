@@ -2,9 +2,10 @@ import { randomUUID } from "crypto";
 import { v2 as cloudinary } from "cloudinary";
 
 /**
- * Payment screenshots carry bank details, so they are uploaded as
- * "authenticated" assets: the plain URL does not serve them, only a signed
- * one, and signed URLs are handed out to the admin dashboard alone.
+ * Entry images are personal — payment screenshots carry bank details, player
+ * pictures are of the player — so both are uploaded as "authenticated" assets:
+ * the plain URL does not serve them, only a signed one, and signed URLs are
+ * handed out to the admin dashboard alone.
  */
 cloudinary.config({
   cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
@@ -13,26 +14,25 @@ cloudinary.config({
   secure: true,
 });
 
-const FOLDER = "rtpl/payment-screenshots";
+const PAYMENT_SCREENSHOT_FOLDER = "rtpl/payment-screenshots";
+const PLAYER_PHOTO_FOLDER = "rtpl/player-photos";
 
 /**
  * Uploads an image buffer; resolves to { publicId, format }. Named at random
  * rather than by entry reference, because the upload happens before the
  * entry is saved and its reference is final.
  */
-export function uploadPaymentScreenshot(buffer) {
+function uploadImage(buffer, folder, maxDimension) {
   return new Promise((resolve, reject) => {
     const stream = cloudinary.uploader.upload_stream(
       {
-        folder: FOLDER,
+        folder,
         public_id: randomUUID(),
         type: "authenticated",
         resource_type: "image",
         overwrite: false,
-        // Phone screenshots are often 3–4 MB; nobody needs more than this to
-        // read a UTR off one.
         transformation: [
-          { width: 1600, height: 1600, crop: "limit" },
+          { width: maxDimension, height: maxDimension, crop: "limit" },
           { quality: "auto", fetch_format: "jpg" },
         ],
       },
@@ -46,25 +46,39 @@ export function uploadPaymentScreenshot(buffer) {
   });
 }
 
-/** Best-effort cleanup when the entry the screenshot belongs to is not saved. */
-export async function deletePaymentScreenshot(publicId) {
+/**
+ * Phone screenshots are often 3–4 MB; nobody needs more than 1600px to read a
+ * UTR off one.
+ */
+export function uploadPaymentScreenshot(buffer) {
+  return uploadImage(buffer, PAYMENT_SCREENSHOT_FOLDER, 1600);
+}
+
+/** Kept larger than a screenshot, so it still holds up on a team poster. */
+export function uploadPlayerPhoto(buffer) {
+  return uploadImage(buffer, PLAYER_PHOTO_FOLDER, 2400);
+}
+
+/** Best-effort cleanup when the entry the image belongs to is not saved. */
+export async function deleteEntryImage(publicId) {
   try {
     await cloudinary.uploader.destroy(publicId, {
       type: "authenticated",
       resource_type: "image",
     });
   } catch (err) {
-    console.error("[rtpl] could not delete orphaned screenshot", publicId, err);
+    console.error("[rtpl] could not delete orphaned image", publicId, err);
   }
 }
 
-export function paymentScreenshotUrl(screenshot) {
-  if (!screenshot?.publicId) return null;
+/** A signed link to an entry image, or null for an entry without that image. */
+export function entryImageUrl(image) {
+  if (!image?.publicId) return null;
 
-  return cloudinary.url(screenshot.publicId, {
+  return cloudinary.url(image.publicId, {
     type: "authenticated",
     resource_type: "image",
-    format: screenshot.format,
+    format: image.format,
     sign_url: true,
     secure: true,
   });

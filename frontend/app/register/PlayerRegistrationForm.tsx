@@ -304,6 +304,27 @@ export function PlayerRegistrationForm() {
                 aria-invalid={Boolean(err.city)}
               />
             </Question>
+
+            <Question
+              label="Upload your picture"
+              hint={
+                state.status === "error"
+                  ? "Please attach your picture again before resubmitting."
+                  : "A clear, recent picture of you. JPG, PNG, WEBP or HEIC, up to 5 MB."
+              }
+              required
+              htmlFor="playerPhoto"
+              error={err.playerPhoto}
+            >
+              <input
+                className="input file:mr-4 file:cursor-pointer file:border-0 file:bg-ink file:px-3 file:py-1.5 file:text-sm file:font-semibold file:text-paper"
+                id="playerPhoto"
+                name="playerPhoto"
+                type="file"
+                accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                aria-invalid={Boolean(err.playerPhoto)}
+              />
+            </Question>
           </div>
         </SectionHeading>
       </section>

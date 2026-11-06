@@ -6,8 +6,9 @@ const nextConfig = {
   distDir: process.env.NEXT_DIST_DIR || ".next",
   experimental: {
     // Server actions cap request bodies at 1 MB; the player form carries a
-    // payment screenshot of up to 5 MB, plus room for the other fields.
-    serverActions: { bodySizeLimit: "6mb" },
+    // picture and a payment screenshot of up to 5 MB each, plus room for the
+    // other fields.
+    serverActions: { bodySizeLimit: "11mb" },
   },
 };
 
