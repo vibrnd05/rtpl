@@ -1,9 +1,9 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
-import { useFormStatus } from "react-dom";
+import { startTransition, useActionState, useState } from "react";
 import { registerPlayer, type FormState } from "./actions";
+import { compressImage } from "@/lib/compressImage";
 import {
   PLAYING_ROLES,
   T_SHIRT_SIZES,
@@ -119,21 +119,95 @@ function Choice({
   );
 }
 
-function SubmitButton() {
-  const { pending } = useFormStatus();
+/** Matches the server action's per-file limit. */
+const MAX_IMAGE_BYTES = 5 * 1024 * 1024;
+/** Vercel rejects request bodies over 4.5 MB; leave room for the text fields. */
+const MAX_TOTAL_UPLOAD_BYTES = 4.2 * 1024 * 1024;
+
+type Values = {
+  fullName: string;
+  mobile: string;
+  email: string;
+  dateOfBirth: string;
+  city: string;
+  lastYearTeam: string;
+  membershipType: string;
+  playingRole: string;
+  tShirtSize: string;
+  jerseyNumber: string;
+  battingStyle: string;
+  bowlingStyle: string;
+};
+
+/**
+ * The checks that need no server, run before anything is uploaded. Messages
+ * match the backend model's, which stays the authority on the finer rules.
+ */
+function validate(
+  values: Values,
+  availabilityConfirmed: boolean,
+  photo: File | null,
+  screenshot: File | null
+): Record<string, string> {
+  const errors: Record<string, string> = {};
+  const v = Object.fromEntries(
+    Object.entries(values).map(([k, val]) => [k, val.trim()])
+  ) as Values;
+
+  if (v.fullName.length < 2) errors.fullName = "Please enter the player's full name.";
+  if (v.mobile.length < 6) errors.mobile = "A contact mobile number is required.";
+  else if (!/^[\d\s+(),/-]+$/.test(v.mobile))
+    errors.mobile = "Use digits, spaces and + ( ) , / - only.";
+  if (!v.email) errors.email = "An email address is required.";
+  else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(v.email))
+    errors.email = "Enter a valid email address.";
+  if (!v.dateOfBirth) errors.dateOfBirth = "A date of birth is required.";
+  if (!v.city) errors.city = "A city is required.";
+  if (!photo) errors.playerPhoto = "Please upload a picture of yourself.";
+  if (!v.lastYearTeam) errors.lastYearTeam = "Please select last year's team, or Uncapped.";
+  if (!v.membershipType) errors.membershipType = "Please select Tabler or Square Leg.";
+  if (!v.tShirtSize) errors.tShirtSize = "Please select a T-shirt size.";
+  if (!/^\d{1,3}$/.test(v.jerseyNumber))
+    errors.jerseyNumber = v.jerseyNumber
+      ? "The jersey number must be 1 to 3 digits."
+      : "Please enter a jersey number.";
+  if (!v.playingRole) errors.playingRole = "Please select a playing role.";
+  if (!v.battingStyle) errors.battingStyle = "Please select a type of batsman.";
+  if (!v.bowlingStyle) errors.bowlingStyle = "Please select a type of bowler.";
+  if (!screenshot) errors.paymentScreenshot = "Please upload a screenshot of your payment.";
+  if (!availabilityConfirmed)
+    errors.availabilityConfirmed =
+      "Please confirm that you are available to play on both 20th and 21st February 2027.";
+
+  return errors;
+}
+
+/** The chosen file, or null when the input is empty. */
+function pickedFile(form: HTMLFormElement, name: string): File | null {
+  const input = form.elements.namedItem(name);
+  const file = input instanceof HTMLInputElement ? input.files?.[0] : undefined;
+  return file && file.size > 0 ? file : null;
+}
+
+function SubmitButton({ pending, label }: { pending: boolean; label: string }) {
   return (
     <button type="submit" className="btn btn-primary" disabled={pending}>
-      {pending ? "Submitting…" : "Submit entry"}{" "}
+      {pending ? label : "Submit entry"}{" "}
       <span className="btn__arrow">→</span>
     </button>
   );
 }
 
 export function PlayerRegistrationForm() {
-  const [state, formAction] = useActionState(registerPlayer, initialState);
+  const [state, formAction, isPending] = useActionState(registerPlayer, initialState);
+
+  // Problems caught in the browser, before anything is sent.
+  const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
+  const [clientMessage, setClientMessage] = useState("");
+  const [preparing, setPreparing] = useState(false);
 
   // Controlled so nothing is lost when a failed submission re-renders the form.
-  const [values, setValues] = useState({
+  const [values, setValues] = useState<Values>({
     fullName: "",
     mobile: "",
     email: "",
@@ -149,15 +223,95 @@ export function PlayerRegistrationForm() {
   });
   const [availabilityConfirmed, setAvailabilityConfirmed] = useState(false);
 
+  /** Drops a field's browser-side error once the player touches it. */
+  const clearError = (key: string) =>
+    setClientErrors((errs) => {
+      if (!(key in errs)) return errs;
+      const { [key]: _, ...rest } = errs;
+      return rest;
+    });
+
   const set =
-    (key: keyof typeof values) =>
-    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) =>
+    (key: keyof Values) =>
+    (e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>) => {
       setValues((v) => ({ ...v, [key]: e.target.value }));
+      clearError(key);
+    };
 
-  const pick = (key: keyof typeof values) => (next: string) =>
+  const pick = (key: keyof Values) => (next: string) => {
     setValues((v) => ({ ...v, [key]: next }));
+    clearError(key);
+  };
 
-  const err = state.fieldErrors;
+  const err = { ...state.fieldErrors, ...clientErrors };
+  const busy = preparing || isPending;
+  // The browser-side line goes away once every flagged field has been touched.
+  const hasClientErrors = Object.keys(clientErrors).length > 0;
+  const message = hasClientErrors ? clientMessage : state.message;
+  const showingError = hasClientErrors || state.status === "error";
+
+  /**
+   * Submitted by hand rather than through `<form action>`: React resets a form
+   * after an action-attribute submission, and a reset empties the file inputs
+   * — which cannot be refilled from code — so every rejected entry used to
+   * cost the player both uploads.
+   */
+  async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
+    e.preventDefault();
+    if (busy) return;
+    const form = e.currentTarget;
+
+    const photo = pickedFile(form, "playerPhoto");
+    const screenshot = pickedFile(form, "paymentScreenshot");
+
+    const errors = validate(values, availabilityConfirmed, photo, screenshot);
+    if (Object.keys(errors).length > 0) {
+      showErrors(form, errors, "Please fix the highlighted fields.");
+      return;
+    }
+
+    setPreparing(true);
+    const [smallPhoto, smallScreenshot] = await Promise.all([
+      compressImage(photo!),
+      compressImage(screenshot!),
+    ]);
+    setPreparing(false);
+
+    const sizeErrors: Record<string, string> = {};
+    if (smallPhoto.size > MAX_IMAGE_BYTES)
+      sizeErrors.playerPhoto = "Your picture must be 5 MB or smaller.";
+    if (smallScreenshot.size > MAX_IMAGE_BYTES)
+      sizeErrors.paymentScreenshot = "The payment screenshot must be 5 MB or smaller.";
+    if (
+      Object.keys(sizeErrors).length === 0 &&
+      smallPhoto.size + smallScreenshot.size > MAX_TOTAL_UPLOAD_BYTES
+    ) {
+      const tooBig = "Together the two images are too large. Please use a smaller picture or a JPG screenshot.";
+      sizeErrors[smallPhoto.size >= smallScreenshot.size ? "playerPhoto" : "paymentScreenshot"] = tooBig;
+    }
+    if (Object.keys(sizeErrors).length > 0) {
+      showErrors(form, sizeErrors, Object.values(sizeErrors)[0]);
+      return;
+    }
+
+    setClientErrors({});
+    setClientMessage("");
+
+    const data = new FormData(form);
+    data.set("playerPhoto", smallPhoto, smallPhoto.name);
+    data.set("paymentScreenshot", smallScreenshot, smallScreenshot.name);
+    startTransition(() => formAction(data));
+  }
+
+  function showErrors(form: HTMLFormElement, errors: Record<string, string>, msg: string) {
+    setClientErrors(errors);
+    setClientMessage(msg);
+    // Field order in the form, so the player lands on the first problem.
+    const first = Array.from(form.elements).find(
+      (el) => el instanceof HTMLElement && "name" in el && (el as HTMLInputElement).name in errors
+    ) as HTMLElement | undefined;
+    first?.scrollIntoView({ behavior: "smooth", block: "center" });
+  }
 
   if (state.status === "success") {
     return (
@@ -203,7 +357,7 @@ export function PlayerRegistrationForm() {
   }
 
   return (
-    <form action={formAction} className="pb-[clamp(48px,6vw,80px)]" noValidate>
+    <form onSubmit={handleSubmit} className="pb-[clamp(48px,6vw,80px)]" noValidate>
       {/* Honeypot */}
       <input
         type="text"
@@ -309,11 +463,7 @@ export function PlayerRegistrationForm() {
 
             <Question
               label="Upload your picture"
-              hint={
-                state.status === "error"
-                  ? "Please attach your picture again before resubmitting."
-                  : "A clear, recent picture of you. JPG, PNG, WEBP or HEIC, up to 5 MB."
-              }
+              hint="A clear, recent picture of you. JPG, PNG, WEBP or HEIC, up to 5 MB."
               required
               htmlFor="playerPhoto"
               error={err.playerPhoto}
@@ -324,6 +474,7 @@ export function PlayerRegistrationForm() {
                 name="playerPhoto"
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                onChange={() => clearError("playerPhoto")}
                 aria-invalid={Boolean(err.playerPhoto)}
               />
             </Question>
@@ -506,11 +657,7 @@ export function PlayerRegistrationForm() {
 
             <Question
               label="Upload payment screenshot"
-              hint={
-                state.status === "error"
-                  ? "Please attach the screenshot again before resubmitting."
-                  : "A screenshot of the completed payment showing the UTR / transaction ID. JPG, PNG, WEBP or HEIC, up to 5 MB."
-              }
+              hint="A screenshot of the completed payment showing the UTR / transaction ID. JPG, PNG, WEBP or HEIC, up to 5 MB."
               required
               htmlFor="paymentScreenshot"
               error={err.paymentScreenshot}
@@ -521,6 +668,7 @@ export function PlayerRegistrationForm() {
                 name="paymentScreenshot"
                 type="file"
                 accept="image/jpeg,image/png,image/webp,image/heic,image/heif"
+                onChange={() => clearError("paymentScreenshot")}
                 aria-invalid={Boolean(err.paymentScreenshot)}
               />
             </Question>
@@ -534,7 +682,11 @@ export function PlayerRegistrationForm() {
           type="checkbox"
           name="availabilityConfirmed"
           checked={availabilityConfirmed}
-          onChange={(e) => setAvailabilityConfirmed(e.target.checked)}
+          onChange={(e) => {
+            setAvailabilityConfirmed(e.target.checked);
+            clearError("availabilityConfirmed");
+          }}
+          aria-invalid={Boolean(err.availabilityConfirmed)}
         />
         <span>
           By submitting this form, I confirm that I am available to attend and
@@ -542,18 +694,24 @@ export function PlayerRegistrationForm() {
           <span className="ml-1 text-accent-700">*</span>
         </span>
       </label>
+      {err.availabilityConfirmed && (
+        <p className="mt-1.5 text-xs text-accent-700">{err.availabilityConfirmed}</p>
+      )}
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
-        <SubmitButton />
+        <SubmitButton
+          pending={busy}
+          label={preparing ? "Preparing images…" : "Submitting…"}
+        />
         <Link href="/" className="btn btn-ghost">
           Cancel
         </Link>
         <p
           className={`m-0 text-[13.5px] ${
-            state.status === "error" ? "text-accent-700" : "text-ink/70"
+            showingError ? "text-accent-700" : "text-ink/70"
           }`}
         >
-          {state.message || "Fields marked * are required."}
+          {message || "Fields marked * are required."}
         </p>
       </div>
     </form>
