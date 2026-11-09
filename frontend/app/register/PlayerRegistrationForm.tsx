@@ -495,6 +495,10 @@ export function PlayerRegistrationForm() {
               QR code coming soon
             </div>
 
+            <p className="m-0 text-[14.5px] font-semibold">
+              Entry fee: {LEAGUE.playerFee}
+            </p>
+
             <Question
               label="Upload payment screenshot"
               hint={

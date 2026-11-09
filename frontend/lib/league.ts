@@ -13,6 +13,9 @@ export const LEAGUE = {
   slotsOpen: 2,
   teamCount: 5,
   entryFee: "Rs. 1.50 Lakhs",
+  /** Player entry fee shown on the form. Keep in step with the fee in
+   * backend/src/config/playerPhases.js, which is what is actually charged. */
+  playerFee: "Rs. 7,500",
   auctionDate: "13th December",
   email: "rtpl@roundtableindia.org",
   phone: "+91 98110 44112",
