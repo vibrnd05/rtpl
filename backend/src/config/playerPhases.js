@@ -1,13 +1,13 @@
 /**
  * Player entry phases, in the order they fill. Entries are assigned by
- * position: the first 60 get the early-bird fee, the next 5 phase 2, the next
+ * position: the first 60 get the phase 1 fee, the next 5 phase 2, the next
  * 5 phase 3, and the last 5 are reserve places.
  *
  * Reserve is the last phase, so it only opens once the 70 main entries are
  * taken, and the season closes at MAX_PLAYERS.
  */
 export const PLAYER_PHASES = [
-  { key: "early-bird", label: "Early bird", size: 60, fee: 7000 },
+  { key: "early-bird", label: "Phase 1", size: 60, fee: 7500 },
   { key: "phase-2", label: "Phase 2", size: 5, fee: 8000 },
   { key: "phase-3", label: "Phase 3", size: 5, fee: 8000 },
   { key: "reserve", label: "Reserve", size: 5, fee: 8000 },
