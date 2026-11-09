@@ -31,6 +31,7 @@ function season() {
 }
 
 function phaseLabel(key) {
+  if (key === "early-bird") return PLAYER_PHASES[0].label;
   return PLAYER_PHASES.find((phase) => phase.key === key)?.label ?? key;
 }
 

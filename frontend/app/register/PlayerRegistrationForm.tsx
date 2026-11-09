@@ -185,7 +185,7 @@ export function PlayerRegistrationForm() {
           {state.fee !== undefined && (
             <p className="mt-1.5 text-sm text-ink/70">
               Entry fee: Rs. {state.fee.toLocaleString("en-IN")}
-              {state.phase && <span className="ml-2">({state.phase})</span>}
+              {state.phase && <span className="ml-2">({state.phase.replace(/^phase-(\d+)$/, "Phase $1").replace(/^reserve$/, "Reserve")})</span>}
             </p>
           )}
         </div>
@@ -486,13 +486,18 @@ export function PlayerRegistrationForm() {
           note="Scan the QR code to pay the entry fee, then submit your entry. Keep the transaction UTR handy in case we need to trace the payment."
         >
           <div className="grid gap-7">
-            {/* Placeholder until the payment QR code is ready. */}
-            <div
-              className="flex aspect-square w-[min(240px,100%)] items-center justify-center border-2 border-dashed border-divider text-sm text-ink/55"
-              role="img"
-              aria-label="Payment QR code, coming soon"
-            >
-              QR code coming soon
+            <div className="grid gap-3">
+              <img
+                src="/qr-code.jpeg"
+                alt="UPI payment QR code"
+                className="block aspect-square w-[min(240px,100%)] border-2 border-divider object-contain"
+              />
+              <p className="m-0 text-sm text-ink/70">
+                Or pay to UPI ID:{" "}
+                <span className="font-semibold text-ink select-all">
+                  pawansurana85@okhdfcbank
+                </span>
+              </p>
             </div>
 
             <p className="m-0 text-[14.5px] font-semibold">

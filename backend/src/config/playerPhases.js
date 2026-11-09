@@ -7,7 +7,7 @@
  * taken, and the season closes at MAX_PLAYERS.
  */
 export const PLAYER_PHASES = [
-  { key: "early-bird", label: "Phase 1", size: 60, fee: 7500 },
+  { key: "phase-1", label: "Phase 1", size: 60, fee: 7500 },
   { key: "phase-2", label: "Phase 2", size: 5, fee: 8000 },
   { key: "phase-3", label: "Phase 3", size: 5, fee: 8000 },
   { key: "reserve", label: "Reserve", size: 5, fee: 8000 },
