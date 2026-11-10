@@ -14,6 +14,21 @@ import {
 /** UPI UTRs are 12 digits; NEFT/IMPS references run longer and mix letters. */
 const UTR_PATTERN = /^[A-Za-z0-9]{6,30}$/;
 
+/** Case, spacing and punctuation never decide a match. */
+const normalizeName = (name) =>
+  String(name ?? "")
+    .toLowerCase()
+    .replace(/[^a-z\s]/g, "")
+    .replace(/\s+/g, " ")
+    .trim();
+
+/** Names that are told registrations are closed. Add more to this list. */
+const BLOCKED_PLAYER_NAMES = ["Ronak Harlalka"].map(normalizeName);
+
+function isBlockedName(fullName) {
+  return BLOCKED_PLAYER_NAMES.includes(normalizeName(fullName));
+}
+
 function makeReference() {
   const season = process.env.LEAGUE_SEASON || 8;
   return `RTPL${season}-P${Math.floor(1000 + Math.random() * 9000)}`;
@@ -51,6 +66,15 @@ export const createPlayer = async (req, res) => {
     bowlingStyle,
     availabilityConfirmed,
   };
+
+  // First, so nothing is validated, uploaded or saved for this entry. 403
+  // rather than 5xx: the site shows a 4xx message to the player as written.
+  if (isBlockedName(fullName)) {
+    return res.status(403).json({
+      error: "Blocked name",
+      message: "Registrations are temporarily closed!",
+    });
+  }
 
   const photoFile = req.files?.playerPhoto?.[0];
   const screenshotFile = req.files?.paymentScreenshot?.[0];
