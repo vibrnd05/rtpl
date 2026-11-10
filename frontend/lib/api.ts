@@ -141,6 +141,16 @@ export function submitPlayer(
   return apiFetch<PlayerReceipt>("/api/players", { method: "POST", body });
 }
 
+/** Whether player places are left. Null when the API could not be reached. */
+export async function getPlayerAvailability(): Promise<{ open: boolean } | null> {
+  try {
+    const result = await apiFetch<{ open: boolean }>("/api/players/availability");
+    return result.ok ? result.data : null;
+  } catch {
+    return null;
+  }
+}
+
 /* -- Admin ---------------------------------------------------------------- */
 
 export type AdminLoginReceipt = {

@@ -1,5 +1,6 @@
 import Player from "../models/player.model.js";
-import { PLAYER_PHASES, phaseForPosition } from "../config/playerPhases.js";
+import Counter from "../models/counter.model.js";
+import { PLAYER_PHASES, PLAYER_FEE, MAX_PLAYERS } from "../config/playerPhases.js";
 import {
   uploadPaymentScreenshot,
   uploadPlayerPhoto,
@@ -27,6 +28,68 @@ const BLOCKED_PLAYER_NAMES = ["Ronak Harlalka"].map(normalizeName);
 
 function isBlockedName(fullName) {
   return BLOCKED_PLAYER_NAMES.includes(normalizeName(fullName));
+}
+
+const REGISTRATIONS_FULL_MESSAGE = "Player registrations are full for this season.";
+const PLAYER_COUNTER = "players";
+
+/**
+ * Creates the place counter the first time it is needed, starting from the
+ * entries already saved. $setOnInsert never touches an existing counter, and
+ * if two requests race to create it, the loser's duplicate-key error is the
+ * proof that it now exists.
+ */
+let counterReady = null;
+function ensurePlayerCounter() {
+  counterReady ??= (async () => {
+    const existing = await Player.countDocuments();
+    try {
+      await Counter.updateOne(
+        { _id: PLAYER_COUNTER },
+        { $setOnInsert: { seq: existing } },
+        { upsert: true }
+      );
+    } catch (err) {
+      if (err.code !== 11000) throw err;
+    }
+  })().catch((err) => {
+    counterReady = null;
+    throw err;
+  });
+  return counterReady;
+}
+
+/**
+ * Takes one of the MAX_PLAYERS places, or returns null when none are left.
+ *
+ * The check and the increment are one atomic MongoDB update on one document,
+ * so two entries arriving together cannot both take the last place: only one
+ * update can see seq at 74 and move it to 75. Counting entries and then
+ * saving, as this used to, left a gap between the two steps for a 76th.
+ */
+async function claimPlayerPlace() {
+  await ensurePlayerCounter();
+
+  const counter = await Counter.findOneAndUpdate(
+    { _id: PLAYER_COUNTER, seq: { $lt: MAX_PLAYERS } },
+    { $inc: { seq: 1 } },
+    { new: true }
+  );
+
+  return counter ? counter.seq : null;
+}
+
+/** Hands a claimed place back when its entry did not get saved. */
+function releasePlayerPlace() {
+  Counter.updateOne({ _id: PLAYER_COUNTER, seq: { $gt: 0 } }, { $inc: { seq: -1 } }).catch(
+    (err) => console.error("[rtpl] could not release a player place", err)
+  );
+}
+
+async function placesTaken() {
+  await ensurePlayerCounter();
+  const counter = await Counter.findById(PLAYER_COUNTER);
+  return counter?.seq ?? 0;
 }
 
 function makeReference() {
@@ -93,9 +156,9 @@ export const createPlayer = async (req, res) => {
     });
   }
 
-  // Check the fields before uploading, so a typo in the form does not leave
-  // images behind in Cloudinary. Phase, fee and reference are the server's
-  // to set, so placeholders stand in for them here.
+  // Check the fields before claiming a place or uploading, so a typo in the
+  // form neither holds a place nor leaves images behind in Cloudinary. Phase,
+  // fee and reference are the server's to set, so placeholders stand in.
   try {
     await new Player({
       ...entry,
@@ -119,63 +182,68 @@ export const createPlayer = async (req, res) => {
     });
   }
 
-  // Settled, not Promise.all: if one upload fails, the other still has to
-  // finish so it can be cleaned up instead of being left in Cloudinary.
-  const [photoUpload, screenshotUpload] = await Promise.allSettled([
-    uploadPlayerPhoto(photoFile.buffer),
-    uploadPaymentScreenshot(screenshotFile.buffer),
-  ]);
+  // Claimed before anything is uploaded, so a full season costs no uploads.
+  let place;
+  try {
+    place = await claimPlayerPlace();
+  } catch (err) {
+    console.error("[rtpl] could not claim a player place", err);
 
-  if (photoUpload.status === "rejected") {
-    console.error("[rtpl] could not upload player picture", photoUpload.reason);
-
-    if (screenshotUpload.status === "fulfilled") {
-      deleteEntryImage(screenshotUpload.value.publicId);
-    }
-
-    return res.status(502).json({
-      error: photoUpload.reason?.message,
-      message: "We could not upload your picture. Please try again in a moment.",
+    return res.status(500).json({
+      error: err.message,
+      message: "We could not save your entry just now. Please try again in a moment.",
     });
   }
 
-  if (screenshotUpload.status === "rejected") {
-    console.error("[rtpl] could not upload payment screenshot", screenshotUpload.reason);
-
-    deleteEntryImage(photoUpload.value.publicId);
-
-    return res.status(502).json({
-      error: screenshotUpload.reason?.message,
-      message: "We could not upload your payment screenshot. Please try again in a moment.",
+  if (place === null) {
+    return res.status(409).json({
+      error: "Registrations full",
+      message: REGISTRATIONS_FULL_MESSAGE,
     });
   }
-
-  const playerPhoto = photoUpload.value;
-  const paymentScreenshot = screenshotUpload.value;
 
   let saved = false;
+  /** Every image uploaded for this entry, so a failure can remove them all. */
+  const uploaded = [];
 
   try {
+    // Settled, not Promise.all: if one upload fails, the other still has to
+    // finish so it can be cleaned up instead of being left in Cloudinary.
+    const [photoUpload, screenshotUpload] = await Promise.allSettled([
+      uploadPlayerPhoto(photoFile.buffer),
+      uploadPaymentScreenshot(screenshotFile.buffer),
+    ]);
+
+    if (photoUpload.status === "fulfilled") uploaded.push(photoUpload.value);
+    if (screenshotUpload.status === "fulfilled") uploaded.push(screenshotUpload.value);
+
+    if (photoUpload.status === "rejected") {
+      console.error("[rtpl] could not upload player picture", photoUpload.reason);
+
+      return res.status(502).json({
+        error: photoUpload.reason?.message,
+        message: "We could not upload your picture. Please try again in a moment.",
+      });
+    }
+
+    if (screenshotUpload.status === "rejected") {
+      console.error("[rtpl] could not upload payment screenshot", screenshotUpload.reason);
+
+      return res.status(502).json({
+        error: screenshotUpload.reason?.message,
+        message: "We could not upload your payment screenshot. Please try again in a moment.",
+      });
+    }
+
     for (let attempt = 0; attempt < 5; attempt++) {
       try {
-        // Entries are placed by how many already exist, so the phase and fee
-        // follow the order of registration and the form cannot choose them.
-        const phase = phaseForPosition(await Player.countDocuments());
-
-        if (!phase) {
-          return res.status(409).json({
-            error: "Registrations full",
-            message: "Player registrations are full for this season.",
-          });
-        }
-
         const player = await Player.create({
           ...entry,
-          phase: phase.key,
-          fee: phase.fee,
+          phase: PLAYER_PHASES[0].key,
+          fee: PLAYER_FEE,
           reference: makeReference(),
-          paymentScreenshot,
-          playerPhoto,
+          paymentScreenshot: screenshotUpload.value,
+          playerPhoto: photoUpload.value,
         });
 
         saved = true;
@@ -216,12 +284,25 @@ export const createPlayer = async (req, res) => {
       message: "Could not allocate an entry reference. Please submit again.",
     });
   } finally {
-    // Every way out of the loop except a saved entry leaves both images
-    // belonging to nothing.
+    // Every way out except a saved entry hands the place back and removes
+    // the images, which now belong to nothing.
     if (!saved) {
-      deleteEntryImage(paymentScreenshot.publicId);
-      deleteEntryImage(playerPhoto.publicId);
+      releasePlayerPlace();
+      for (const image of uploaded) deleteEntryImage(image.publicId);
     }
+  }
+};
+
+/** Whether the form should be open — the registration page asks this. */
+export const getPlayerAvailability = async (_req, res) => {
+  try {
+    const taken = await placesTaken();
+
+    res.json({ open: taken < MAX_PLAYERS, max: MAX_PLAYERS });
+  } catch (err) {
+    console.error("[rtpl] could not read player availability", err);
+
+    res.status(500).json({ error: err.message, message: "Could not check availability." });
   }
 };
 

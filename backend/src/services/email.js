@@ -1,5 +1,3 @@
-import { PLAYER_PHASES } from "../config/playerPhases.js";
-
 /**
  * Player emails, sent through Resend's REST API. Plain fetch rather than the
  * SDK: two POSTs do not justify a dependency.
@@ -28,11 +26,6 @@ function assetUrl(path) {
 
 function season() {
   return process.env.LEAGUE_SEASON || 8;
-}
-
-function phaseLabel(key) {
-  if (key === "early-bird") return PLAYER_PHASES[0].label;
-  return PLAYER_PHASES.find((phase) => phase.key === key)?.label ?? key;
 }
 
 function rupees(amount) {
@@ -194,7 +187,6 @@ export function sendEntryReceivedEmail(player) {
       details: [
         ["Reference", player.reference],
         ["Player", player.fullName],
-        ["Entry phase", phaseLabel(player.phase)],
         ["Entry fee", rupees(player.fee)],
         ["Status", "Awaiting payment confirmation"],
       ],

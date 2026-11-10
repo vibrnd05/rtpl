@@ -362,7 +362,6 @@ export function PlayerRegistrationForm() {
           {state.fee !== undefined && (
             <p className="mt-1.5 text-sm text-ink/70">
               Entry fee: Rs. {state.fee.toLocaleString("en-IN")}
-              {state.phase && <span className="ml-2">({state.phase.replace(/^phase-(\d+)$/, "Phase $1").replace(/^reserve$/, "Reserve")})</span>}
             </p>
           )}
         </div>

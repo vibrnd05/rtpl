@@ -145,9 +145,15 @@ const playerSchema = new mongoose.Schema(
     phase: {
       type: String,
       required: true,
-      // "early-bird" is the old name for phase 1, kept so entries saved
-      // before the rename still validate.
-      enum: [...PLAYER_PHASES.map((phase) => phase.key), "early-bird"],
+      // There is one phase now; the old keys stay so entries saved under
+      // them still validate.
+      enum: [
+        ...PLAYER_PHASES.map((phase) => phase.key),
+        "early-bird",
+        "phase-2",
+        "phase-3",
+        "reserve",
+      ],
     },
 
     fee: {
