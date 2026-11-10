@@ -167,6 +167,21 @@ const playerSchema = new mongoose.Schema(
       default: "pending",
     },
 
+    /**
+     * Further payment screenshots, added by an admin from the dashboard —
+     * never by the player. Each has its own _id so it can be removed alone.
+     */
+    extraPaymentScreenshots: {
+      type: [
+        {
+          publicId: { type: String, required: true },
+          format: { type: String },
+          uploadedAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+
     /** Cloudinary asset for the screenshot the player uploaded with the entry. */
     paymentScreenshot: {
       publicId: { type: String },

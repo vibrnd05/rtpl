@@ -5,9 +5,12 @@ import {
   getPlayerById,
   confirmPlayerPayment,
   getPlayerAvailability,
+  addPaymentScreenshots,
+  deletePaymentScreenshot,
 } from "../controllers/player.controller.js";
 import requireAdmin from "../middleware/requireAdmin.js";
 import uploadEntryImages from "../middleware/uploadEntryImages.js";
+import uploadAdminScreenshots from "../middleware/uploadAdminScreenshots.js";
 
 const router = express.Router();
 
@@ -23,5 +26,15 @@ router.get("/", requireAdmin, getPlayers);
 router.get("/:id", requireAdmin, getPlayerById);
 
 router.post("/:id/confirm-payment", requireAdmin, confirmPlayerPayment);
+
+// Admin only. requireAdmin runs before the upload is even parsed, so nobody
+// without a valid admin token can push a file through.
+router.post(
+  "/:id/payment-screenshots",
+  requireAdmin,
+  uploadAdminScreenshots,
+  addPaymentScreenshots
+);
+router.delete("/:id/payment-screenshots/:imageId", requireAdmin, deletePaymentScreenshot);
 
 export default router;

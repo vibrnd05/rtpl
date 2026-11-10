@@ -213,6 +213,8 @@ export type Player = {
   paymentScreenshotUrl?: string | null;
   /** Signed too. Empty for entries submitted before the picture was asked for. */
   playerPhotoUrl?: string | null;
+  /** Payment screenshots an admin added from the dashboard, with signed links. */
+  extraPaymentScreenshots?: { _id: string; url: string | null; uploadedAt: string }[];
   /** Set once an admin confirms the payment. */
   utr?: string;
   paymentConfirmedAt?: string;
@@ -224,6 +226,25 @@ export function listPlayers(token: string) {
   return apiFetch<{ count: number; players: Player[] }>("/api/players", {
     headers: { Authorization: `Bearer ${token}` },
   });
+}
+
+/** Admin only: adds payment screenshots to a player. */
+export function addPlayerScreenshots(token: string, playerId: string, files: File[]) {
+  const body = new FormData();
+  for (const file of files) body.append("screenshots", file, file.name);
+
+  return apiFetch<{ added: number; failed: number }>(
+    `/api/players/${encodeURIComponent(playerId)}/payment-screenshots`,
+    { method: "POST", headers: { Authorization: `Bearer ${token}` }, body }
+  );
+}
+
+/** Admin only: removes one admin-added payment screenshot. */
+export function deletePlayerScreenshot(token: string, playerId: string, imageId: string) {
+  return apiFetch<{ ok: true }>(
+    `/api/players/${encodeURIComponent(playerId)}/payment-screenshots/${encodeURIComponent(imageId)}`,
+    { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
+  );
 }
 
 export function confirmPlayerPayment(token: string, playerId: string, utr: string) {

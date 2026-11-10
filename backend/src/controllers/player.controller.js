@@ -308,12 +308,114 @@ export const getPlayerAvailability = async (_req, res) => {
 
 /** Players as the dashboard needs them: with signed links to their images. */
 function withImageUrls(player) {
+  const plain = player.toObject();
   return {
-    ...player.toObject(),
+    ...plain,
     paymentScreenshotUrl: entryImageUrl(player.paymentScreenshot),
     playerPhotoUrl: entryImageUrl(player.playerPhoto),
+    // Only the id, signed link and date leave the server.
+    extraPaymentScreenshots: (plain.extraPaymentScreenshots ?? []).map((image) => ({
+      _id: String(image._id),
+      url: entryImageUrl(image),
+      uploadedAt: image.uploadedAt,
+    })),
   };
 }
+
+/** Admin adds one or more payment screenshots to an existing player. */
+export const addPaymentScreenshots = async (req, res) => {
+  const { id } = req.params;
+  const files = req.files ?? [];
+
+  if (files.length === 0) {
+    return res.status(400).json({
+      error: "No files",
+      message: "Choose at least one screenshot to upload.",
+    });
+  }
+
+  try {
+    // Checked first, so nothing is uploaded for a player who is not there.
+    if (!(await Player.exists({ _id: id }))) {
+      return res.status(404).json({ error: "Not found", message: "No player with that id." });
+    }
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ error: err.message, message: "That is not a valid player id." });
+    }
+    console.error("[rtpl] could not look up player for screenshots", err);
+    return res.status(500).json({ error: err.message, message: "Could not upload the screenshots." });
+  }
+
+  const uploads = await Promise.allSettled(
+    files.map((file) => uploadPaymentScreenshot(file.buffer))
+  );
+  const images = [];
+  for (const u of uploads) {
+    if (u.status === "fulfilled") images.push({ ...u.value, uploadedAt: new Date() });
+    else console.error("[rtpl] could not upload admin screenshot", u.reason);
+  }
+
+  if (images.length === 0) {
+    return res.status(502).json({
+      error: "Upload failed",
+      message: "The screenshots could not be uploaded. Please try again.",
+    });
+  }
+
+  try {
+    const player = await Player.findByIdAndUpdate(
+      id,
+      { $push: { extraPaymentScreenshots: { $each: images } } },
+      { new: true }
+    );
+
+    if (!player) {
+      for (const image of images) deleteEntryImage(image.publicId);
+      return res.status(404).json({ error: "Not found", message: "No player with that id." });
+    }
+
+    res.status(201).json({
+      player: withImageUrls(player),
+      added: images.length,
+      failed: uploads.length - images.length,
+    });
+  } catch (err) {
+    for (const image of images) deleteEntryImage(image.publicId);
+    console.error("[rtpl] could not save admin screenshots", err);
+    res.status(500).json({ error: err.message, message: "Could not save the screenshots." });
+  }
+};
+
+/** Admin removes one screenshot they added. The player's own is untouched. */
+export const deletePaymentScreenshot = async (req, res) => {
+  const { id, imageId } = req.params;
+
+  try {
+    // Returns the document as it was, so the removed image's Cloudinary id
+    // is known and can be deleted too.
+    const before = await Player.findOneAndUpdate(
+      { _id: id, "extraPaymentScreenshots._id": imageId },
+      { $pull: { extraPaymentScreenshots: { _id: imageId } } },
+      { new: false }
+    );
+
+    if (!before) {
+      return res.status(404).json({ error: "Not found", message: "That screenshot is already gone." });
+    }
+
+    const removed = before.extraPaymentScreenshots.find((image) => String(image._id) === imageId);
+    if (removed) deleteEntryImage(removed.publicId);
+
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ error: err.message, message: "That is not a valid id." });
+    }
+    console.error("[rtpl] could not delete admin screenshot", err);
+    res.status(500).json({ error: err.message, message: "Could not delete the screenshot." });
+  }
+};
 
 export const getPlayers = async (_req, res) => {
   try {

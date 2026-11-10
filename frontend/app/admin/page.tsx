@@ -12,6 +12,7 @@ import {
 import { LEAGUE } from "@/lib/league";
 import { signOut } from "./actions";
 import { ConfirmPaymentForm } from "./ConfirmPaymentForm";
+import { PaymentScreenshots } from "./PaymentScreenshots";
 
 export const metadata: Metadata = {
   title: "Entries - RTPL admin",
@@ -153,6 +154,11 @@ function PlayerRow({ entry }: { entry: Player }) {
             playerName={entry.fullName}
           />
         )}
+        <PaymentScreenshots
+          playerId={entry._id}
+          playerName={entry.fullName}
+          screenshots={entry.extraPaymentScreenshots ?? []}
+        />
       </td>
       <td className="tnum whitespace-nowrap text-ink/70">
         {formatDate(entry.createdAt)}
