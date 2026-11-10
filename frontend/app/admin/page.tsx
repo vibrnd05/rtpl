@@ -23,6 +23,7 @@ export const metadata: Metadata = {
 export const dynamic = "force-dynamic";
 
 const OWNER_COLUMNS = [
+  "#",
   "Reference",
   "Team",
   "Owners",
@@ -36,6 +37,7 @@ const OWNER_COLUMNS = [
 ];
 
 const PLAYER_COLUMNS = [
+  "#",
   "Reference",
   "Name",
   "Picture",
@@ -56,6 +58,17 @@ const PLAYER_COLUMNS = [
   "Submitted",
 ];
 
+/**
+ * Registration order: the earliest entry is 1. The list arrives newest first,
+ * so the number is worked out from the submission times, not the row position.
+ */
+function registrationNumbers(entries: { _id: string; createdAt: string }[]) {
+  const ordered = [...entries].sort(
+    (a, b) => new Date(a.createdAt).getTime() - new Date(b.createdAt).getTime()
+  );
+  return new Map(ordered.map((entry, i) => [entry._id, i + 1]));
+}
+
 function formatDate(iso: string) {
   return new Date(iso).toLocaleString("en-IN", {
     dateStyle: "medium",
@@ -71,9 +84,10 @@ function formatDay(iso: string) {
   });
 }
 
-function OwnerRow({ entry }: { entry: Registration }) {
+function OwnerRow({ entry, number }: { entry: Registration; number: number }) {
   return (
     <tr>
+      <td className="tnum whitespace-nowrap text-ink/70">{number}</td>
       <td className="tnum whitespace-nowrap font-semibold text-accent-700">
         {entry.reference}
       </td>
@@ -94,9 +108,10 @@ function OwnerRow({ entry }: { entry: Registration }) {
   );
 }
 
-function PlayerRow({ entry }: { entry: Player }) {
+function PlayerRow({ entry, number }: { entry: Player; number: number }) {
   return (
     <tr>
+      <td className="tnum whitespace-nowrap text-ink/70">{number}</td>
       <td className="tnum whitespace-nowrap font-semibold text-accent-700">
         {entry.reference}
       </td>
@@ -167,8 +182,9 @@ function PlayerRow({ entry }: { entry: Player }) {
   );
 }
 
-function ownerExportRow(entry: Registration) {
+function ownerExportRow(entry: Registration, number: number) {
   return {
+    "#": number,
     Reference: entry.reference,
     Team: entry.teamName,
     Owners: entry.owners,
@@ -182,8 +198,9 @@ function ownerExportRow(entry: Registration) {
   };
 }
 
-function playerExportRow(entry: Player) {
+function playerExportRow(entry: Player, number: number) {
   return {
+    "#": number,
     Reference: entry.reference,
     Name: entry.fullName,
     City: entry.city,
@@ -226,6 +243,8 @@ export default async function AdminDashboardPage() {
 
   const owners = ownerResult.ok ? ownerResult.data.registrations : [];
   const players = playerResult.ok ? playerResult.data.players : [];
+  const playerNumbers = registrationNumbers(players);
+  const ownerNumbers = registrationNumbers(owners);
 
   return (
     <>
@@ -265,7 +284,7 @@ export default async function AdminDashboardPage() {
                 registered.
               </p>
               <DownloadExcelButton
-                rows={players.map(playerExportRow)}
+                rows={players.map((e) => playerExportRow(e, playerNumbers.get(e._id) ?? 0))}
                 filename="rtpl-player-entries"
                 sheetName="Players"
               />
@@ -293,7 +312,11 @@ export default async function AdminDashboardPage() {
                 </thead>
                 <tbody>
                   {players.map((entry) => (
-                    <PlayerRow key={entry._id} entry={entry} />
+                    <PlayerRow
+                      key={entry._id}
+                      entry={entry}
+                      number={playerNumbers.get(entry._id) ?? 0}
+                    />
                   ))}
                 </tbody>
               </table>
@@ -315,7 +338,7 @@ export default async function AdminDashboardPage() {
                 received.
               </p>
               <DownloadExcelButton
-                rows={owners.map(ownerExportRow)}
+                rows={owners.map((e) => ownerExportRow(e, ownerNumbers.get(e._id) ?? 0))}
                 filename="rtpl-owner-entries"
                 sheetName="Owners"
               />
@@ -343,7 +366,11 @@ export default async function AdminDashboardPage() {
                 </thead>
                 <tbody>
                   {owners.map((entry) => (
-                    <OwnerRow key={entry._id} entry={entry} />
+                    <OwnerRow
+                      key={entry._id}
+                      entry={entry}
+                      number={ownerNumbers.get(entry._id) ?? 0}
+                    />
                   ))}
                 </tbody>
               </table>
