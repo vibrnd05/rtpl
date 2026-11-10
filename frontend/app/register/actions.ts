@@ -1,6 +1,6 @@
 "use server";
 
-import { submitPlayer } from "@/lib/api";
+import { getPlayerAvailability, submitPlayer } from "@/lib/api";
 import { LEAGUE } from "@/lib/league";
 
 export type FormState = {
@@ -16,7 +16,18 @@ export type FormState = {
   /** Phase label and fee in rupees, shown on the confirmation panel. */
   phase?: string;
   fee?: number;
+  /** Set when the entry was refused because every place is taken. */
+  closed?: boolean;
 };
+
+/**
+ * Lets an open form ask whether places are still left. Null when the API could
+ * not be reached; the form then stays as it is.
+ */
+export async function checkPlayerAvailability(): Promise<boolean | null> {
+  const availability = await getPlayerAvailability();
+  return availability ? availability.open : null;
+}
 
 const str = (data: FormData, key: string) =>
   (data.get(key) as string | null)?.trim() ?? "";
@@ -121,6 +132,7 @@ export async function registerPlayer(
           : result.message,
       fieldErrors: {},
       values,
+      closed: result.status === 409 && result.error === "Registrations full",
     };
   } catch (err) {
     console.error("[rtpl] player registration threw", err);

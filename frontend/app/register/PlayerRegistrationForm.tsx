@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import { startTransition, useActionState, useEffect, useState } from "react";
-import { registerPlayer, type FormState } from "./actions";
+import { checkPlayerAvailability, registerPlayer, type FormState } from "./actions";
 import { compressImage } from "@/lib/compressImage";
 import { toast } from "@/components/Toaster";
 import {
@@ -203,6 +203,36 @@ function SubmitButton({ pending, label }: { pending: boolean; label: string }) {
 export function PlayerRegistrationForm() {
   const [state, formAction, isPending] = useActionState(registerPlayer, initialState);
 
+  /**
+   * The page decides open/closed when it loads, but a player can sit on the
+   * form for minutes. Re-checking while it is open (and whenever the tab comes
+   * back into view) swaps the form — QR code included — for the closed notice
+   * as soon as the last place goes, before they pay.
+   */
+  const [closed, setClosed] = useState(false);
+  useEffect(() => {
+    let stopped = false;
+    const check = async () => {
+      if (document.visibilityState !== "visible") return;
+      try {
+        const open = await checkPlayerAvailability();
+        if (!stopped && open === false) setClosed(true);
+      } catch {
+        // Unreachable: leave the form as it is; the server still enforces.
+      }
+    };
+    const timer = setInterval(check, 20_000);
+    document.addEventListener("visibilitychange", check);
+    return () => {
+      stopped = true;
+      clearInterval(timer);
+      document.removeEventListener("visibilitychange", check);
+    };
+  }, []);
+  useEffect(() => {
+    if (state.closed) setClosed(true);
+  }, [state]);
+
   // Problems caught in the browser, before anything is sent.
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
   const [preparing, setPreparing] = useState(false);
@@ -267,6 +297,16 @@ export function PlayerRegistrationForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (busy) return;
+
+    // One last look before anything is uploaded.
+    try {
+      if ((await checkPlayerAvailability()) === false) {
+        setClosed(true);
+        return;
+      }
+    } catch {
+      // Unreachable: carry on; the server refuses past the cap anyway.
+    }
     const form = e.currentTarget;
 
     const photo = pickedFile(form, "playerPhoto");
@@ -333,6 +373,23 @@ export function PlayerRegistrationForm() {
       count > 1
         ? `${lead} (${count - 1} more field${count > 2 ? "s" : ""} highlighted.)`
         : lead
+    );
+  }
+
+  if (closed && state.status !== "success") {
+    return (
+      <section className="py-[clamp(56px,8vw,110px)]">
+        <p className="eyebrow mb-6 flex items-center gap-3">
+          <span className="inline-block h-2.5 w-2.5 bg-accent" />
+          Registrations closed
+        </p>
+        <h2 className="ml-[-0.058em] max-w-[26ch] text-[clamp(30px,4vw,50px)] font-extrabold leading-[1.06] tracking-tight">
+          Player registrations are full for this season.
+        </h2>
+        <p className="mt-7 max-w-[56ch] text-[16.5px] leading-[1.65]">
+          All places have been taken. Please do not make a payment.
+        </p>
+      </section>
     );
   }
 

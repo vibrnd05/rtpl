@@ -109,8 +109,12 @@ function OwnerRow({ entry, number }: { entry: Registration; number: number }) {
 }
 
 function PlayerRow({ entry, number }: { entry: Player; number: number }) {
+  // Green once an admin has confirmed the payment by hand.
+  const confirmed = entry.status === "confirmed";
   return (
-    <tr>
+    <tr
+      className={confirmed ? "bg-[#3fb27f]/15 [&>td]:border-[#3fb27f]/35" : undefined}
+    >
       <td className="tnum whitespace-nowrap text-ink/70">{number}</td>
       <td className="tnum whitespace-nowrap font-semibold text-accent-700">
         {entry.reference}
