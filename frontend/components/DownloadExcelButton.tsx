@@ -6,9 +6,16 @@ type Props = {
   /** File name, without extension. */
   filename: string;
   sheetName: string;
+  /** Button text; defaults to "Download Excel". */
+  label?: string;
 };
 
-export function DownloadExcelButton({ rows, filename, sheetName }: Props) {
+export function DownloadExcelButton({
+  rows,
+  filename,
+  sheetName,
+  label = "Download Excel",
+}: Props) {
   async function handleClick() {
     const XLSX = await import("xlsx");
     const sheet = XLSX.utils.json_to_sheet(rows);
@@ -24,7 +31,7 @@ export function DownloadExcelButton({ rows, filename, sheetName }: Props) {
       disabled={rows.length === 0}
       className="btn btn-secondary"
     >
-      Download Excel
+      {label}
     </button>
   );
 }

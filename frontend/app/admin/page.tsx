@@ -292,6 +292,19 @@ export default async function AdminDashboardPage() {
                 filename="rtpl-player-entries"
                 sheetName="Players"
               />
+              {/* Only the entries still waiting on a payment confirmation. */}
+              <DownloadExcelButton
+                rows={players
+                  .filter((e) => e.status !== "confirmed")
+                  .sort(
+                    (a, b) =>
+                      (playerNumbers.get(a._id) ?? 0) - (playerNumbers.get(b._id) ?? 0)
+                  )
+                  .map((e) => playerExportRow(e, playerNumbers.get(e._id) ?? 0))}
+                filename="rtpl-player-entries-payment-pending"
+                sheetName="Payment pending"
+                label="Download unconfirmed"
+              />
             </div>
           </div>
 
