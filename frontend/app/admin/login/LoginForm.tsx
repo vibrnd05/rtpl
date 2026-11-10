@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { signIn, type LoginState } from "./actions";
+import { toast } from "@/components/Toaster";
 
 const initialState: LoginState = { message: "" };
 
@@ -17,6 +18,11 @@ function SubmitButton() {
 
 export function LoginForm() {
   const [state, formAction] = useActionState(signIn, initialState);
+
+  // A successful sign-in redirects, so anything that comes back is an error.
+  useEffect(() => {
+    if (state.message) toast(state.message);
+  }, [state]);
 
   return (
     <form action={formAction} className="mt-9 grid max-w-[420px] gap-6">
@@ -55,12 +61,8 @@ export function LoginForm() {
 
       <div className="flex flex-wrap items-center gap-3">
         <SubmitButton />
-        <p
-          className={`m-0 text-[13.5px] ${
-            state.message ? "text-accent-700" : "text-ink/70"
-          }`}
-        >
-          {state.message || "Tournament desk access only."}
+        <p className="m-0 text-[13.5px] text-ink/70">
+          Tournament desk access only.
         </p>
       </div>
     </form>

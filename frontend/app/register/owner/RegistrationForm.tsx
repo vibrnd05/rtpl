@@ -1,11 +1,12 @@
 "use client";
 
 import Link from "next/link";
-import { useActionState, useState } from "react";
+import { useActionState, useEffect, useState } from "react";
 import { useFormStatus } from "react-dom";
 import { registerTeam, type FormState } from "./actions";
 import { YES_NO, YES_NO_MAYBE } from "@/lib/registration";
 import { LEAGUE } from "@/lib/league";
+import { toast } from "@/components/Toaster";
 
 // Defined here, not in actions.ts: a "use server" module may only export
 // async functions, so a plain object export would arrive as undefined.
@@ -75,7 +76,8 @@ function Question({
       </Label>
       {hint && <p className="mb-2 text-xs leading-normal text-ink/60">{hint}</p>}
       {children}
-      {error && <p className="mt-1.5 text-xs text-accent-700">{error}</p>}
+      {/* The message itself goes to a toast; the field just turns red. */}
+      {error && <span className="sr-only">{error}</span>}
     </div>
   );
 }
@@ -145,6 +147,16 @@ export function RegistrationForm() {
     setValues((v) => ({ ...v, [key]: next }));
 
   const err = state.fieldErrors;
+
+  // Each server answer is a fresh state object, so a repeat error toasts again.
+  useEffect(() => {
+    if (state.status === "error") toast(state.message);
+    if (state.status === "success")
+      toast(
+        state.reference ? `Entry submitted. Reference ${state.reference}.` : "Entry submitted.",
+        "success"
+      );
+  }, [state]);
 
   if (state.status === "success") {
     return (
@@ -339,12 +351,8 @@ export function RegistrationForm() {
         <Link href="/" className="btn btn-ghost">
           Cancel
         </Link>
-        <p
-          className={`m-0 text-[13.5px] ${
-            state.status === "error" ? "text-accent-700" : "text-ink/70"
-          }`}
-        >
-          {state.message || "Fields marked * are required."}
+        <p className="m-0 text-[13.5px] text-ink/70">
+          Fields marked * are required.
         </p>
       </div>
     </form>

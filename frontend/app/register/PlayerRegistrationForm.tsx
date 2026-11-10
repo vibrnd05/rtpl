@@ -1,9 +1,10 @@
 "use client";
 
 import Link from "next/link";
-import { startTransition, useActionState, useState } from "react";
+import { startTransition, useActionState, useEffect, useState } from "react";
 import { registerPlayer, type FormState } from "./actions";
 import { compressImage } from "@/lib/compressImage";
+import { toast } from "@/components/Toaster";
 import {
   PLAYING_ROLES,
   T_SHIRT_SIZES,
@@ -82,7 +83,8 @@ function Question({
       </Label>
       {hint && <p className="mb-2 text-xs leading-normal text-ink/60">{hint}</p>}
       {children}
-      {error && <p className="mt-1.5 text-xs text-accent-700">{error}</p>}
+      {/* The message itself goes to a toast; the field just turns red. */}
+      {error && <span className="sr-only">{error}</span>}
     </div>
   );
 }
@@ -203,8 +205,18 @@ export function PlayerRegistrationForm() {
 
   // Problems caught in the browser, before anything is sent.
   const [clientErrors, setClientErrors] = useState<Record<string, string>>({});
-  const [clientMessage, setClientMessage] = useState("");
   const [preparing, setPreparing] = useState(false);
+
+  // Every answer from the server arrives as a fresh state object, so each one
+  // raises its own toast — including the same error twice in a row.
+  useEffect(() => {
+    if (state.status === "error") toast(state.message);
+    if (state.status === "success")
+      toast(
+        state.reference ? `Entry submitted. Reference ${state.reference}.` : "Entry submitted.",
+        "success"
+      );
+  }, [state]);
 
   // Controlled so nothing is lost when a failed submission re-renders the form.
   const [values, setValues] = useState<Values>({
@@ -245,10 +257,6 @@ export function PlayerRegistrationForm() {
 
   const err = { ...state.fieldErrors, ...clientErrors };
   const busy = preparing || isPending;
-  // The browser-side line goes away once every flagged field has been touched.
-  const hasClientErrors = Object.keys(clientErrors).length > 0;
-  const message = hasClientErrors ? clientMessage : state.message;
-  const showingError = hasClientErrors || state.status === "error";
 
   /**
    * Submitted by hand rather than through `<form action>`: React resets a form
@@ -266,7 +274,7 @@ export function PlayerRegistrationForm() {
 
     const errors = validate(values, availabilityConfirmed, photo, screenshot);
     if (Object.keys(errors).length > 0) {
-      showErrors(form, errors, "Please fix the highlighted fields.");
+      showErrors(form, errors);
       return;
     }
 
@@ -290,12 +298,11 @@ export function PlayerRegistrationForm() {
       sizeErrors[smallPhoto.size >= smallScreenshot.size ? "playerPhoto" : "paymentScreenshot"] = tooBig;
     }
     if (Object.keys(sizeErrors).length > 0) {
-      showErrors(form, sizeErrors, Object.values(sizeErrors)[0]);
+      showErrors(form, sizeErrors);
       return;
     }
 
     setClientErrors({});
-    setClientMessage("");
 
     const data = new FormData(form);
     data.set("playerPhoto", smallPhoto, smallPhoto.name);
@@ -303,14 +310,30 @@ export function PlayerRegistrationForm() {
     startTransition(() => formAction(data));
   }
 
-  function showErrors(form: HTMLFormElement, errors: Record<string, string>, msg: string) {
+  /**
+   * Fields go red; the toast names the first problem in form order, which is
+   * also where the page scrolls to.
+   */
+  function showErrors(form: HTMLFormElement, errors: Record<string, string>) {
     setClientErrors(errors);
-    setClientMessage(msg);
-    // Field order in the form, so the player lands on the first problem.
+
     const first = Array.from(form.elements).find(
-      (el) => el instanceof HTMLElement && "name" in el && (el as HTMLInputElement).name in errors
-    ) as HTMLElement | undefined;
+      (el): el is HTMLInputElement =>
+        el instanceof HTMLInputElement ||
+        el instanceof HTMLSelectElement ||
+        el instanceof HTMLTextAreaElement
+          ? el.name in errors
+          : false
+    );
     first?.scrollIntoView({ behavior: "smooth", block: "center" });
+
+    const count = Object.keys(errors).length;
+    const lead = (first && errors[first.name]) || Object.values(errors)[0];
+    toast(
+      count > 1
+        ? `${lead} (${count - 1} more field${count > 2 ? "s" : ""} highlighted.)`
+        : lead
+    );
   }
 
   if (state.status === "success") {
@@ -688,15 +711,13 @@ export function PlayerRegistrationForm() {
           }}
           aria-invalid={Boolean(err.availabilityConfirmed)}
         />
-        <span>
+        {/* No inline message any more, so the sentence itself turns orange. */}
+        <span className={err.availabilityConfirmed ? "text-accent-700" : undefined}>
           By submitting this form, I confirm that I am available to attend and
           play in RTPL on both 20th and 21st February 2027
           <span className="ml-1 text-accent-700">*</span>
         </span>
       </label>
-      {err.availabilityConfirmed && (
-        <p className="mt-1.5 text-xs text-accent-700">{err.availabilityConfirmed}</p>
-      )}
 
       <div className="mt-6 flex flex-wrap items-center gap-3">
         <SubmitButton
@@ -706,12 +727,8 @@ export function PlayerRegistrationForm() {
         <Link href="/" className="btn btn-ghost">
           Cancel
         </Link>
-        <p
-          className={`m-0 text-[13.5px] ${
-            showingError ? "text-accent-700" : "text-ink/70"
-          }`}
-        >
-          {message || "Fields marked * are required."}
+        <p className="m-0 text-[13.5px] text-ink/70">
+          Fields marked * are required.
         </p>
       </div>
     </form>

@@ -2,6 +2,7 @@ import type { Metadata, Viewport } from "next";
 import { LEAGUE } from "@/lib/league";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { BackgroundMusic } from "@/components/BackgroundMusic";
+import { Toaster } from "@/components/Toaster";
 import "./globals.css";
 
 const description = `Round Table Premier League Season ${LEAGUE.season} — two days of floodlit T10 cricket, ${LEAGUE.dates}, at ${LEAGUE.venue.name}. ${LEAGUE.slotsOpen} team slots open.`;
@@ -51,6 +52,7 @@ export default function RootLayout({
         {/* In the layout, not a page, so the track survives the hop
             between the landing page and the registration form. */}
         <BackgroundMusic />
+        <Toaster />
       </body>
     </html>
   );

@@ -1,8 +1,9 @@
 "use client";
 
-import { useActionState } from "react";
+import { useActionState, useEffect } from "react";
 import { useFormStatus } from "react-dom";
 import { confirmPayment, type ConfirmPaymentState } from "./actions";
+import { toast } from "@/components/Toaster";
 
 // Defined here, not in actions.ts: a "use server" module may only export
 // async functions.
@@ -30,6 +31,11 @@ export function ConfirmPaymentForm({
 }) {
   const [state, formAction] = useActionState(confirmPayment, initialState);
 
+  useEffect(() => {
+    if (state.status === "idle" || !state.message) return;
+    toast(state.message, state.status === "error" ? "error" : "success");
+  }, [state]);
+
   return (
     <form action={formAction} className="min-w-[300px]">
       <input type="hidden" name="playerId" value={playerId} />
@@ -46,15 +52,6 @@ export function ConfirmPaymentForm({
         />
         <SubmitButton />
       </div>
-      {state.message && (
-        <p
-          className={`mt-1.5 text-xs ${
-            state.status === "error" ? "text-accent-700" : "text-ink/70"
-          }`}
-        >
-          {state.message}
-        </p>
-      )}
     </form>
   );
 }
