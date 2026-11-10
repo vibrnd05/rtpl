@@ -297,6 +297,10 @@ export function PlayerRegistrationForm() {
   async function handleSubmit(e: React.FormEvent<HTMLFormElement>) {
     e.preventDefault();
     if (busy) return;
+    // Read before any await: React clears e.currentTarget once the handler
+    // yields, so reading it after the check below gave null and the submit
+    // died silently.
+    const form = e.currentTarget;
 
     // One last look before anything is uploaded.
     try {
@@ -307,7 +311,6 @@ export function PlayerRegistrationForm() {
     } catch {
       // Unreachable: carry on; the server refuses past the cap anyway.
     }
-    const form = e.currentTarget;
 
     const photo = pickedFile(form, "playerPhoto");
     const screenshot = pickedFile(form, "paymentScreenshot");
