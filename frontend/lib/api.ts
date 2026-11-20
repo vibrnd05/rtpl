@@ -215,6 +215,8 @@ export type Player = {
   playerPhotoUrl?: string | null;
   /** Payment screenshots an admin added from the dashboard, with signed links. */
   extraPaymentScreenshots?: { _id: string; url: string | null; uploadedAt: string }[];
+  /** Further player pictures an admin added from the dashboard, with signed links. */
+  extraPlayerPhotos?: { _id: string; url: string | null; uploadedAt: string }[];
   /** Set once an admin confirms the payment. */
   utr?: string;
   paymentConfirmedAt?: string;
@@ -243,6 +245,36 @@ export function addPlayerScreenshots(token: string, playerId: string, files: Fil
 export function deletePlayerScreenshot(token: string, playerId: string, imageId: string) {
   return apiFetch<{ ok: true }>(
     `/api/players/${encodeURIComponent(playerId)}/payment-screenshots/${encodeURIComponent(imageId)}`,
+    { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
+  );
+}
+
+/** Admin only: replaces the player's main picture. */
+export function replacePlayerPhoto(token: string, playerId: string, file: File) {
+  const body = new FormData();
+  body.append("photo", file, file.name);
+
+  return apiFetch<{ ok: true; playerPhotoUrl: string | null }>(
+    `/api/players/${encodeURIComponent(playerId)}/player-photo`,
+    { method: "PUT", headers: { Authorization: `Bearer ${token}` }, body }
+  );
+}
+
+/** Admin only: adds further pictures of a player. */
+export function addPlayerPhotos(token: string, playerId: string, files: File[]) {
+  const body = new FormData();
+  for (const file of files) body.append("photos", file, file.name);
+
+  return apiFetch<{ added: number; failed: number }>(
+    `/api/players/${encodeURIComponent(playerId)}/player-photos`,
+    { method: "POST", headers: { Authorization: `Bearer ${token}` }, body }
+  );
+}
+
+/** Admin only: removes one admin-added player picture. */
+export function deletePlayerPhoto(token: string, playerId: string, imageId: string) {
+  return apiFetch<{ ok: true }>(
+    `/api/players/${encodeURIComponent(playerId)}/player-photos/${encodeURIComponent(imageId)}`,
     { method: "DELETE", headers: { Authorization: `Bearer ${token}` } }
   );
 }

@@ -4,9 +4,12 @@ import { redirect } from "next/navigation";
 import { revalidatePath } from "next/cache";
 import { clearAdminToken, getAdminToken } from "@/lib/adminSession";
 import {
+  addPlayerPhotos,
   addPlayerScreenshots,
   confirmPlayerPayment,
+  deletePlayerPhoto,
   deletePlayerScreenshot,
+  replacePlayerPhoto,
 } from "@/lib/api";
 
 export type ScreenshotResult = { ok: boolean; message: string };
@@ -63,6 +66,64 @@ export async function removePlayerScreenshot(
 
   revalidatePath("/admin");
   return { ok: true, message: "Screenshot deleted." };
+}
+
+/**
+ * One picture per call, for the same 4.5 MB reason as the screenshots.
+ * `mode` "replace" swaps the main picture; "add" adds a further one.
+ */
+export async function uploadPlayerPhoto(formData: FormData): Promise<ScreenshotResult> {
+  const token = await getAdminToken();
+  if (!token) redirect("/admin/login");
+
+  const playerId = String(formData.get("playerId") ?? "");
+  const mode = formData.get("mode") === "replace" ? "replace" : "add";
+  const file = formData.get("photo");
+  if (!(file instanceof File) || file.size === 0) {
+    return { ok: false, message: "Choose a picture to upload." };
+  }
+
+  let result;
+  try {
+    result =
+      mode === "replace"
+        ? await replacePlayerPhoto(token, playerId, file)
+        : await addPlayerPhotos(token, playerId, [file]);
+  } catch (err) {
+    console.error("[rtpl] upload player picture threw", err);
+    return { ok: false, message: "Could not reach the server. Please try again." };
+  }
+
+  if (!result.ok) {
+    if (result.status === 401) redirect("/admin/login");
+    return { ok: false, message: result.message };
+  }
+
+  return { ok: true, message: "" };
+}
+
+export async function removePlayerPhoto(
+  playerId: string,
+  imageId: string
+): Promise<ScreenshotResult> {
+  const token = await getAdminToken();
+  if (!token) redirect("/admin/login");
+
+  let result;
+  try {
+    result = await deletePlayerPhoto(token, playerId, imageId);
+  } catch (err) {
+    console.error("[rtpl] delete player picture threw", err);
+    return { ok: false, message: "Could not reach the server. Please try again." };
+  }
+
+  if (!result.ok) {
+    if (result.status === 401) redirect("/admin/login");
+    return { ok: false, message: result.message };
+  }
+
+  revalidatePath("/admin");
+  return { ok: true, message: "Picture deleted." };
 }
 
 export async function signOut() {

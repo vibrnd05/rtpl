@@ -13,6 +13,7 @@ import { LEAGUE } from "@/lib/league";
 import { signOut } from "./actions";
 import { ConfirmPaymentForm } from "./ConfirmPaymentForm";
 import { PaymentScreenshots } from "./PaymentScreenshots";
+import { PlayerPhotos } from "./PlayerPhotos";
 
 export const metadata: Metadata = {
   title: "Entries - RTPL admin",
@@ -121,16 +122,12 @@ function PlayerRow({ entry, number }: { entry: Player; number: number }) {
       </td>
       <td className="min-w-[160px] font-semibold">{entry.fullName}</td>
       <td>
-        {entry.playerPhotoUrl && (
-          <a
-            href={entry.playerPhotoUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="whitespace-nowrap text-[13.5px] font-semibold text-accent-700 underline hover:text-accent-600"
-          >
-            View picture ↗
-          </a>
-        )}
+        <PlayerPhotos
+          playerId={entry._id}
+          playerName={entry.fullName}
+          mainUrl={entry.playerPhotoUrl}
+          photos={entry.extraPlayerPhotos ?? []}
+        />
       </td>
       <td>{entry.city}</td>
       <td>{entry.lastYearTeam}</td>

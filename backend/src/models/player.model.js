@@ -182,13 +182,31 @@ const playerSchema = new mongoose.Schema(
       default: [],
     },
 
+    /**
+     * Further pictures of the player, added by an admin from the dashboard.
+     * Stored in the same Cloudinary folder as the player's own picture.
+     */
+    extraPlayerPhotos: {
+      type: [
+        {
+          publicId: { type: String, required: true },
+          format: { type: String },
+          uploadedAt: { type: Date, default: Date.now },
+        },
+      ],
+      default: [],
+    },
+
     /** Cloudinary asset for the screenshot the player uploaded with the entry. */
     paymentScreenshot: {
       publicId: { type: String },
       format: { type: String },
     },
 
-    /** Cloudinary asset for the player's picture, kept in its own folder. */
+    /**
+     * Cloudinary asset for the player's picture, kept in its own folder. The
+     * player uploads it with the entry; an admin may replace it later.
+     */
     playerPhoto: {
       publicId: { type: String },
       format: { type: String },

@@ -7,10 +7,18 @@ import {
   getPlayerAvailability,
   addPaymentScreenshots,
   deletePaymentScreenshot,
+  replacePlayerPhoto,
+  addPlayerPhotos,
+  deletePlayerPhoto,
 } from "../controllers/player.controller.js";
 import requireAdmin from "../middleware/requireAdmin.js";
 import uploadEntryImages from "../middleware/uploadEntryImages.js";
-import uploadAdminScreenshots from "../middleware/uploadAdminScreenshots.js";
+import uploadAdminScreenshots, {
+  uploadAdminImages,
+} from "../middleware/uploadAdminScreenshots.js";
+
+const uploadAdminPhoto = uploadAdminImages("photo", "pictures", 1);
+const uploadAdminPhotos = uploadAdminImages("photos", "pictures");
 
 const router = express.Router();
 
@@ -36,5 +44,11 @@ router.post(
   addPaymentScreenshots
 );
 router.delete("/:id/payment-screenshots/:imageId", requireAdmin, deletePaymentScreenshot);
+
+// Admin only, same gating: replace the player's main picture, or add and
+// remove further pictures. All land in the player-photos folder.
+router.put("/:id/player-photo", requireAdmin, uploadAdminPhoto, replacePlayerPhoto);
+router.post("/:id/player-photos", requireAdmin, uploadAdminPhotos, addPlayerPhotos);
+router.delete("/:id/player-photos/:imageId", requireAdmin, deletePlayerPhoto);
 
 export default router;

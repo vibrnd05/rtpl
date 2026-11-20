@@ -295,8 +295,163 @@ function withImageUrls(player) {
       url: entryImageUrl(image),
       uploadedAt: image.uploadedAt,
     })),
+    extraPlayerPhotos: (plain.extraPlayerPhotos ?? []).map((image) => ({
+      _id: String(image._id),
+      url: entryImageUrl(image),
+      uploadedAt: image.uploadedAt,
+    })),
   };
 }
+
+/**
+ * Checks the player exists before anything is uploaded for them. Returns
+ * true, or sends the error response and returns false.
+ */
+async function ensurePlayerExists(id, res, what) {
+  try {
+    if (await Player.exists({ _id: id })) return true;
+    res.status(404).json({ error: "Not found", message: "No player with that id." });
+  } catch (err) {
+    if (err.name === "CastError") {
+      res.status(400).json({ error: err.message, message: "That is not a valid player id." });
+    } else {
+      console.error(`[rtpl] could not look up player for ${what}`, err);
+      res.status(500).json({ error: err.message, message: `Could not upload the ${what}.` });
+    }
+  }
+  return false;
+}
+
+/**
+ * Admin replaces the player's main picture. The new one is uploaded to the
+ * same folder; the old one is deleted from Cloudinary once the swap is saved.
+ */
+export const replacePlayerPhoto = async (req, res) => {
+  const { id } = req.params;
+  const file = req.files?.[0];
+
+  if (!file) {
+    return res.status(400).json({ error: "No file", message: "Choose a picture to upload." });
+  }
+
+  if (!(await ensurePlayerExists(id, res, "picture"))) return;
+
+  let image;
+  try {
+    image = await uploadPlayerPhoto(file.buffer);
+  } catch (err) {
+    console.error("[rtpl] could not upload replacement player picture", err);
+    return res.status(502).json({
+      error: err.message,
+      message: "The picture could not be uploaded. Please try again.",
+    });
+  }
+
+  try {
+    // Returns the document as it was, so the old picture can be removed.
+    const before = await Player.findByIdAndUpdate(
+      id,
+      { playerPhoto: image },
+      { new: false }
+    );
+
+    if (!before) {
+      deleteEntryImage(image.publicId);
+      return res.status(404).json({ error: "Not found", message: "No player with that id." });
+    }
+
+    const oldId = before.playerPhoto?.publicId;
+    if (oldId && oldId !== image.publicId) deleteEntryImage(oldId);
+
+    res.json({ ok: true, playerPhotoUrl: entryImageUrl(image) });
+  } catch (err) {
+    deleteEntryImage(image.publicId);
+    console.error("[rtpl] could not save replacement player picture", err);
+    res.status(500).json({ error: err.message, message: "Could not save the picture." });
+  }
+};
+
+/** Admin adds one or more further pictures of the player. */
+export const addPlayerPhotos = async (req, res) => {
+  const { id } = req.params;
+  const files = req.files ?? [];
+
+  if (files.length === 0) {
+    return res.status(400).json({
+      error: "No files",
+      message: "Choose at least one picture to upload.",
+    });
+  }
+
+  if (!(await ensurePlayerExists(id, res, "pictures"))) return;
+
+  const uploads = await Promise.allSettled(
+    files.map((file) => uploadPlayerPhoto(file.buffer))
+  );
+  const images = [];
+  for (const u of uploads) {
+    if (u.status === "fulfilled") images.push({ ...u.value, uploadedAt: new Date() });
+    else console.error("[rtpl] could not upload admin player picture", u.reason);
+  }
+
+  if (images.length === 0) {
+    return res.status(502).json({
+      error: "Upload failed",
+      message: "The pictures could not be uploaded. Please try again.",
+    });
+  }
+
+  try {
+    const player = await Player.findByIdAndUpdate(
+      id,
+      { $push: { extraPlayerPhotos: { $each: images } } },
+      { new: true }
+    );
+
+    if (!player) {
+      for (const image of images) deleteEntryImage(image.publicId);
+      return res.status(404).json({ error: "Not found", message: "No player with that id." });
+    }
+
+    res.status(201).json({
+      player: withImageUrls(player),
+      added: images.length,
+      failed: uploads.length - images.length,
+    });
+  } catch (err) {
+    for (const image of images) deleteEntryImage(image.publicId);
+    console.error("[rtpl] could not save admin player pictures", err);
+    res.status(500).json({ error: err.message, message: "Could not save the pictures." });
+  }
+};
+
+/** Admin removes one picture they added. The main picture is untouched. */
+export const deletePlayerPhoto = async (req, res) => {
+  const { id, imageId } = req.params;
+
+  try {
+    const before = await Player.findOneAndUpdate(
+      { _id: id, "extraPlayerPhotos._id": imageId },
+      { $pull: { extraPlayerPhotos: { _id: imageId } } },
+      { new: false }
+    );
+
+    if (!before) {
+      return res.status(404).json({ error: "Not found", message: "That picture is already gone." });
+    }
+
+    const removed = before.extraPlayerPhotos.find((image) => String(image._id) === imageId);
+    if (removed) deleteEntryImage(removed.publicId);
+
+    res.json({ ok: true });
+  } catch (err) {
+    if (err.name === "CastError") {
+      return res.status(400).json({ error: err.message, message: "That is not a valid id." });
+    }
+    console.error("[rtpl] could not delete admin player picture", err);
+    res.status(500).json({ error: err.message, message: "Could not delete the picture." });
+  }
+};
 
 /** Admin adds one or more payment screenshots to an existing player. */
 export const addPaymentScreenshots = async (req, res) => {
