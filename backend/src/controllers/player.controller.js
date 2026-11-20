@@ -548,6 +548,41 @@ export const deletePaymentScreenshot = async (req, res) => {
   }
 };
 
+/**
+ * The auction site's feed: confirmed players only, and only the fields the
+ * auction shows. The projection means contact details, DOB and payment data
+ * are never even read, so they cannot leak through here.
+ */
+export const getAuctionPlayers = async (_req, res) => {
+  try {
+    const players = await Player.find({ status: "confirmed" })
+      .select(
+        "reference fullName playerPhoto playingRole battingStyle bowlingStyle jerseyNumber lastYearTeam createdAt updatedAt"
+      )
+      .sort({ createdAt: 1 });
+
+    res.json({
+      count: players.length,
+      players: players.map((p) => ({
+        id: String(p._id),
+        reference: p.reference,
+        fullName: p.fullName,
+        photoUrl: entryImageUrl(p.playerPhoto),
+        playingRole: p.playingRole,
+        battingStyle: p.battingStyle,
+        bowlingStyle: p.bowlingStyle,
+        jerseyNumber: p.jerseyNumber ?? null,
+        lastYearTeam: p.lastYearTeam,
+        updatedAt: p.updatedAt,
+      })),
+    });
+  } catch (err) {
+    console.error("[rtpl] could not build auction player feed", err);
+
+    res.status(500).json({ error: err.message, message: "Could not load the players." });
+  }
+};
+
 export const getPlayers = async (_req, res) => {
   try {
     const players = await Player.find().sort({ createdAt: -1 });

@@ -116,6 +116,49 @@ and answers `201` with `{ "registration": { ... } }`. Every failure has the same
 body: `{ "error": { "code", "message", "fieldErrors" } }`, where `fieldErrors`
 is keyed by model field and carries the message to show under that input.
 
+### Auction site player feed
+
+The league's separate auction website reads confirmed players from here,
+server to server:
+
+```
+GET /api/auction/players
+X-API-Key: <AUCTION_API_KEY>
+```
+
+Set `AUCTION_API_KEY` in `backend/.env` and on the host (generate one with
+`node -e "console.log(require('crypto').randomBytes(32).toString('hex'))"`) and
+give the same value to the auction site's backend. Without it set, the route
+answers `503`; with a wrong or missing header, `401`. The key must never go into
+the auction site's browser code.
+
+Only players with a confirmed payment are returned, oldest registration first,
+with just these fields. No contact details, DOB or payment data are included.
+
+```jsonc
+{
+  "count": 1,
+  "players": [
+    {
+      "id": "665f…",               // stable key
+      "reference": "RTPL8-P1234",
+      "fullName": "…",
+      "photoUrl": "https://res.cloudinary.com/…",  // signed; null if none
+      "playingRole": "All-rounder",
+      "battingStyle": "Right-handed",
+      "bowlingStyle": "Spin",
+      "jerseyNumber": "07",
+      "lastYearTeam": "Tuskers",
+      "updatedAt": "…"
+    }
+  ]
+}
+```
+
+`photoUrl` does not expire, but when an admin replaces a picture the old image
+is deleted and its URL stops working. Re-fetch the feed rather than storing URLs
+for good.
+
 ### Layout
 
 ```

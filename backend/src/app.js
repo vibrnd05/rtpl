@@ -3,6 +3,7 @@ import cors from "cors";
 import registrationRoutes from "./routes/registration.routes.js";
 import playerRoutes from "./routes/player.routes.js";
 import adminRoutes from "./routes/admin.routes.js";
+import auctionRoutes from "./routes/auction.routes.js";
 
 const allowedOrigins = ["https://rtpl.vibrnd.in", "http://localhost:3000"];
 
@@ -18,6 +19,7 @@ app.get("/api/health", (_req, res) => {
 app.use("/api/admin", adminRoutes);
 app.use("/api/registrations", registrationRoutes);
 app.use("/api/players", playerRoutes);
+app.use("/api/auction", auctionRoutes);
 
 app.use((req, res) => {
   res.status(404).json({
